@@ -23,6 +23,9 @@ const additionalLinkSchema = z
   })
   .strict();
 
+const optionalText = z.string().min(1).nullable().optional();
+const optionalUrl = z.url().nullable().optional();
+
 export const projectMetadataSchema = z
   .object({
     schema_version: z.literal(RESEARCH_METADATA_SCHEMA_VERSION),
@@ -31,23 +34,23 @@ export const projectMetadataSchema = z
     status: z.enum(projectStatuses),
     headline: z.string().min(1),
     year: z.number().int().min(1900).max(2100),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
     description: z.string().min(1),
-    summary: z.string().min(1).optional(),
+    summary: optionalText,
     topics: z.array(z.string().min(1)).default([]),
     github_url: z.url().refine((url) => url.startsWith("https://github.com/"), {
       message: "github_url must be an https://github.com/ URL",
     }),
-    palomar_id: z.string().min(1).optional(),
-    palomar_url: z.url().optional(),
-    paper_url: z.url().optional(),
-    arxiv_id: z.string().min(1).optional(),
-    arxiv_url: z.url().optional(),
-    doi: z.string().min(1).max(255).regex(/^10\.\d{4,9}\/\S+$/).optional(),
-    formalisation_system: z.string().min(1).optional(),
-    verification_status: z.string().min(1).optional(),
-    authorship: z.string().min(1).optional(),
-    original_problem_source: z.string().min(1).optional(),
+    palomar_id: optionalText,
+    palomar_url: optionalUrl,
+    paper_url: optionalUrl,
+    arxiv_id: optionalText,
+    arxiv_url: optionalUrl,
+    doi: z.string().min(1).max(255).regex(/^10\.\d{4,9}\/\S+$/).nullable().optional(),
+    formalisation_system: optionalText,
+    verification: optionalText,
+    attribution: optionalText,
+    original_source: optionalText,
     featured: z.boolean().default(false),
     additional_links: z.array(additionalLinkSchema).default([]),
   })
