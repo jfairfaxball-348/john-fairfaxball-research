@@ -29,7 +29,7 @@ Optional fields:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `date` | `YYYY-MM-DD` string or `null` | A relevant public date when one is useful. |
+| `date` | `YYYY-MM-DD` string or `null` | Project start/public date used for newest-to-oldest ordering. If omitted, the site falls back to January 1 of `year`. |
 | `summary` | string or `null` | Longer optional summary; Markdown and mathematical notation are supported. |
 | `topics` | string array | Public subject tags. Defaults to `[]`. |
 | `palomar_id` | string or `null` | Palomar Registry identifier. |
@@ -76,6 +76,7 @@ This example is illustrative only and is not live project data:
   "status": "Active research",
   "headline": "A bounded study of an example finite graph question.",
   "year": 2026,
+  "date": "2026-09-23",
   "description": "We study the relation $x^2+y^2=z^2$ in a deliberately fictional example.",
   "summary": "Display mathematics is also supported: $$\\alpha(G) \\leq Z(G).$$",
   "topics": ["Graph theory", "Formal verification"],
