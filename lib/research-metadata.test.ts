@@ -21,6 +21,24 @@ test("valid metadata parses and applies optional defaults", () => {
   assert.equal(parsed.featured, true);
 });
 
+test("explicit nulls are accepted for absent optional scalar fields", () => {
+  const parsed = projectMetadataSchema.parse({
+    ...validMetadata,
+    palomar_id: null,
+    palomar_url: null,
+    paper_url: null,
+    arxiv_id: null,
+    arxiv_url: null,
+    doi: null,
+    formalisation_system: null,
+    verification: null,
+    attribution: null,
+    original_source: null,
+  });
+  assert.equal(parsed.paper_url, null);
+  assert.equal(parsed.verification, null);
+});
+
 test("a missing metadata file is a controlled missing result", async () => {
   const result = await decodeProjectMetadataResponse(
     "example/example-project",
