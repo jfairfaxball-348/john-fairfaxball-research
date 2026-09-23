@@ -1,116 +1,119 @@
 # John Fairfax-Ball Research
 
-Public-facing research website for John Fairfax-Ball. GitHub repositories remain the technical source of truth for each research project; this site is the readable presentation layer for active research, completed results, formal verification, Palomar records, code, papers and future preprints.
+Public-facing mathematics research website for John Fairfax-Ball. Each research repository remains the technical source of truth and owns its own website-facing metadata. This repository aggregates that validated metadata into a restrained, readable research index.
 
 ## Stack
 
-- Next.js (App Router)
-- TypeScript
-- React
-- repository-native TypeScript project data validated with Zod
-- `react-markdown` + `remark-math` + KaTeX for mathematical notation
-- plain global CSS for a lightweight, maintainable visual system
-- no database, authentication, CMS or backend service
+- Next.js App Router
+- TypeScript and React
+- Zod validation
+- `react-markdown`, `remark-math` and KaTeX
+- plain global CSS
+- GitHub Actions CI
+- Vercel-ready deployment
+- no database, CMS, authentication or bespoke backend
 
 ## Local development
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
 Open `http://localhost:3000`.
 
-Quality checks:
+Run the full local verification set with:
 
 ```bash
 npm run lint
 npm run typecheck
+npm run test:metadata
 npm run build
 ```
 
 ## Site structure
 
-- `/` — concise home page and selected work
-- `/research` — canonical catalogue of all research projects
+- `/` — home page and selected/featured research
+- `/research` — canonical catalogue of available research projects
 - `/about` — short research biography/programme description
-- `/contact` — direct contact and profile links
+- `/contact` — public contact/profile links
 
-Research outputs are attributes of projects rather than separate top-level sections.
+Research outputs are attributes of projects rather than separate top-level Results, Publications or Formalisations sections.
 
-## Research data
+## Research metadata architecture
 
-Projects live in `lib/projects.ts`. Each project is validated at build time with Zod. The schema supports:
+The data flow is:
 
-- title and stable slug
-- status and headline
-- year
-- Markdown description with inline/display mathematics
-- topics
-- GitHub repository
-- Palomar ID and URL
-- paper URL
-- arXiv ID and URL
-- DOI
-- formalisation system
-- verification note
-- attribution/original source
-- featured flag
-- additional links
-
-Optional fields simply do not render when absent.
-
-### Adding a project
-
-Add one object to `rawProjects` in `lib/projects.ts`:
-
-```ts
-{
-  title: "Example project",
-  slug: "example-project",
-  status: "Active research",
-  headline: "A short factual headline.",
-  year: 2026,
-  description: "A concise description. Mathematics such as $x^2+y^2=z^2$ is supported.",
-  topics: ["Graph theory"],
-  githubUrl: "https://github.com/...",
-}
+```text
+approved research repository
+  -> meta_data_for_website.json
+  -> server-side Next.js aggregator
+  -> Zod validation
+  -> Home / Research
 ```
 
-Malformed metadata fails during development/build rather than silently breaking the UI.
+The filename is exactly `meta_data_for_website.json` and the file belongs at the root of each participating research repository. The current contract is schema version 1.
 
-### Updating status or outputs
+The website contains no duplicate canonical copies of a project's title, status, description, attribution, Palomar record, paper or arXiv information.
 
-Update the same canonical project record as the work matures. For example, add `palomarId` and `palomarUrl` after registry verification, or `arxivId` and `arxivUrl` once a preprint exists. Do not duplicate the project into separate “results” or “publications” data.
+Full field definitions, status values, a fictional example and failure behaviour are documented in [`docs/research-metadata.md`](docs/research-metadata.md).
 
-## Publishing workflow
+## Explicit source registry
 
-1. edit research data/content;
-2. commit changes;
-3. push to GitHub;
-4. Vercel rebuilds and deploys automatically.
+`lib/research-repositories.ts` is the small allow-list of repositories the website is permitted to ingest. It currently contains:
 
-This repository is the content management system.
+- `jfairfaxball-348/Fischer-Zero-Forcing-Counterexample`
+- `jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees`
+- `jfairfaxball-348/Petersen-Zero-Forcing`
+
+Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
+
+## Adding a research project
+
+1. Publish a valid root-level `meta_data_for_website.json` in the research repository.
+2. Add that repository identifier and branch to `lib/research-repositories.ts`.
+3. Run the validation and build commands above.
+4. Commit and push the website change.
+
+After a repository is on the allow-list, subsequent public metadata edits happen in that research repository, not here.
+
+## Validation and missing metadata
+
+`lib/research-metadata.ts` defines the strict versioned Zod contract. Fetched JSON must pass that contract before rendering.
+
+A missing metadata file does not bring down the site: that repository is skipped and a clear server/build warning is emitted. Invalid JSON, invalid fields, non-404 fetch failures and duplicate slugs are also skipped with deliberate diagnostics. Nothing is inferred or fabricated from a repository name.
+
+`npm run test:metadata` covers valid parsing, missing metadata, malformed optional fields and invalid JSON. CI runs it alongside lint, TypeScript and the production build.
+
+## Server-side fetching and cache
+
+Metadata is fetched server-side from the approved public GitHub repositories. Each request uses a one-hour (`3600` second) Next.js revalidation interval, so ordinary visitors do not trigger an uncached GitHub request on every page load and no client-side fetch is needed.
+
+Therefore:
+
+- website code change -> commit/push -> Vercel rebuild/deploy;
+- research metadata change -> GitHub source file changes -> cached metadata is eligible to refresh after one hour;
+- no cross-repository webhook or deploy hook is required at this stage.
+
+No private GitHub token is required for the current public-repository architecture.
 
 ## Vercel deployment
 
-1. In Vercel, create a new project and import `jfairfaxball-348/john-fairfaxball-research`.
-2. Vercel should auto-detect Next.js; no custom build command is required.
-3. Set `NEXT_PUBLIC_SITE_URL` to the deployed production URL, including `https://` and with no trailing slash. This is used by metadata, `robots.txt` and `sitemap.xml`.
-4. Deploy.
+Once this repository is connected to Vercel, use the normal Git integration:
 
-No secrets are required for the site itself.
+1. In Vercel, create/import the GitHub repository `jfairfaxball-348/john-fairfaxball-research`.
+2. Keep the detected Next.js framework settings and default build/output settings.
+3. Deploy the `main` branch to production.
+4. Use the assigned `https://<project>.vercel.app` URL as the production URL.
+
+The application can derive its metadata base from Vercel's production/deployment URL environment. `NEXT_PUBLIC_SITE_URL` remains an optional explicit canonical override; if used, set it to the full production `https://...vercel.app` URL with no trailing slash. No secret is required.
+
+The production URL should be recorded here only after the first successful deployment; it must not be guessed.
 
 ## Custom domain later
 
-When a custom domain is purchased, attach it in the Vercel project settings and update `NEXT_PUBLIC_SITE_URL` to the canonical domain. No code architecture change should be necessary.
+A custom domain is intentionally out of scope. If one is added later, update the canonical URL configuration; the metadata aggregation architecture does not need to change.
 
-## Static assets
+## Repository hygiene
 
-Place static images, icons or downloadable public files in `public/`. The bootstrap deliberately avoids decorative imagery so the research remains the focus.
-
-## Current project records
-
-- Fischer Zero-Forcing Counterexample — Lean 4 formalisation, Palomar verified
-- TreeStack — active research; public summary intentionally minimal pending authoritative project copy
-- Petersen — active research; public summary intentionally minimal pending authoritative project copy
+The lockfile is committed, `.gitignore` excludes generated/local artefacts, CI uses read-only repository contents permission, and no credentials are required by the current implementation.
