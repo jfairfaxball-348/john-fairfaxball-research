@@ -7,5 +7,8 @@ export const siteConfig = {
 };
 
 export function getSiteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const explicitUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  const siteUrl = explicitUrl ?? (vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000");
+  return siteUrl.replace(/\/$/, "");
 }
