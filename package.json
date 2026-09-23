@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:metadata": "node --experimental-strip-types --test lib/research-metadata.test.ts"
+    "test:metadata": "node --experimental-strip-types --test lib/research-metadata.test.ts",
+    "test:site": "node --experimental-strip-types --test lib/site.test.ts"
   },
   "dependencies": {
     "katex": "^0.16.22",
