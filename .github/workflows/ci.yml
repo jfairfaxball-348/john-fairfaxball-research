@@ -21,4 +21,5 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:metadata
+      - run: npm run test:site
       - run: npm run build
