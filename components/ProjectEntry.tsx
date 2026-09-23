@@ -40,7 +40,6 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
         project.formalisation_system ||
         project.verification_status ||
         project.palomar_id ||
-        project.palomar_id ||
         project.arxiv_id ||
         project.doi) && (
         <dl className="project-details">
