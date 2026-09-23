@@ -6,9 +6,35 @@ export const siteConfig = {
   github: "https://github.com/jfairfaxball-348",
 };
 
+type SiteUrlEnvironment = {
+  NEXT_PUBLIC_SITE_URL?: string;
+  VERCEL_PROJECT_PRODUCTION_URL?: string;
+  VERCEL_URL?: string;
+};
+
+function stripTrailingSlash(value: string) {
+  return value.replace(/\/$/, "");
+}
+
+export function resolveSiteUrl(env: SiteUrlEnvironment) {
+  const explicitUrl = env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicitUrl) {
+    return stripTrailingSlash(explicitUrl);
+  }
+
+  const vercelHostname =
+    env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || env.VERCEL_URL?.trim();
+
+  if (vercelHostname) {
+    const url = /^https?:\/\//i.test(vercelHostname)
+      ? vercelHostname
+      : `https://${vercelHostname}`;
+    return stripTrailingSlash(url);
+  }
+
+  return "http://localhost:3000";
+}
+
 export function getSiteUrl() {
-  const explicitUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
-  const siteUrl = explicitUrl ?? (vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000");
-  return siteUrl.replace(/\/$/, "");
+  return resolveSiteUrl(process.env);
 }
