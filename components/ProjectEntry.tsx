@@ -12,6 +12,8 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
     ...project.additional_links,
   ].filter(Boolean) as { label: string; url: string }[];
 
+  const originalSourceIsUrl = Boolean(project.original_source?.match(/^https?:\/\//));
+
   return (
     <article className="project-entry" id={project.slug}>
       <div className="project-topline">
@@ -38,7 +40,7 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
 
       {(project.date ||
         project.formalisation_system ||
-        project.verification_status ||
+        project.verification ||
         project.palomar_id ||
         project.arxiv_id ||
         project.doi) && (
@@ -55,10 +57,10 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
               <dd>{project.formalisation_system}</dd>
             </div>
           )}
-          {project.verification_status && (
+          {project.verification && (
             <div>
               <dt>Verification</dt>
-              <dd>{project.verification_status}</dd>
+              <dd>{project.verification}</dd>
             </div>
           )}
           {project.palomar_id && (
@@ -82,9 +84,16 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
         </dl>
       )}
 
-      {project.authorship && <p className="attribution">{project.authorship}</p>}
-      {project.original_problem_source && (
-        <p className="attribution">Source attribution: {project.original_problem_source}</p>
+      {project.attribution && <p className="attribution">{project.attribution}</p>}
+      {project.original_source && (
+        <p className="attribution">
+          Source attribution:{" "}
+          {originalSourceIsUrl ? (
+            <Link href={project.original_source}>{project.original_source} ↗</Link>
+          ) : (
+            project.original_source
+          )}
+        </p>
       )}
 
       {actions.length > 0 && (
