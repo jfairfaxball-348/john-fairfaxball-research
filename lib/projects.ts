@@ -82,9 +82,10 @@ export async function getResearchProjects(): Promise<{
   }
 
   projects.sort((a, b) => {
-    if (a.year !== b.year) return b.year - a.year;
-    if (a.date && b.date && a.date !== b.date) return b.date.localeCompare(a.date);
-    return a.title.localeCompare(b.title);
+    const aDate = a.date ?? `${a.year}-01-01`;
+    const bDate = b.date ?? `${b.year}-01-01`;
+    const dateOrder = bDate.localeCompare(aDate);
+    return dateOrder !== 0 ? dateOrder : a.title.localeCompare(b.title);
   });
 
   reportDiagnostics(diagnostics);
