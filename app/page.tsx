@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { ProjectEntry } from "@/components/ProjectEntry";
-import { featuredProjects } from "@/lib/projects";
+import { getResearchProjects } from "@/lib/projects";
 
-export default function Home() {
+export default async function Home() {
+  const { projects } = await getResearchProjects();
+  const featuredProjects = projects.filter((project) => project.featured).slice(0, 3);
+
   return (
     <>
       <section className="shell hero">
@@ -27,11 +30,17 @@ export default function Home() {
           </div>
           <Link href="/research">All projects →</Link>
         </div>
-        <div className="project-list compact-project-list">
-          {featuredProjects.slice(0, 3).map((project) => (
-            <ProjectEntry key={project.slug} project={project} />
-          ))}
-        </div>
+        {featuredProjects.length > 0 ? (
+          <div className="project-list compact-project-list">
+            {featuredProjects.map((project) => (
+              <ProjectEntry key={project.slug} project={project} />
+            ))}
+          </div>
+        ) : (
+          <div className="prose">
+            <p>Featured project metadata will appear here as it is published by the approved research repositories.</p>
+          </div>
+        )}
       </section>
     </>
   );
