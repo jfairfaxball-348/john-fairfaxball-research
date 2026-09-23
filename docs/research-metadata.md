@@ -29,23 +29,23 @@ Optional fields:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `date` | `YYYY-MM-DD` string | A relevant public date when one is useful. |
-| `summary` | string | Longer optional summary; Markdown and mathematical notation are supported. |
+| `date` | `YYYY-MM-DD` string or `null` | A relevant public date when one is useful. |
+| `summary` | string or `null` | Longer optional summary; Markdown and mathematical notation are supported. |
 | `topics` | string array | Public subject tags. Defaults to `[]`. |
-| `palomar_id` | string | Palomar Registry identifier. |
-| `palomar_url` | URL | Palomar entry URL. |
-| `paper_url` | URL | Paper or manuscript URL. |
-| `arxiv_id` | string | arXiv identifier. |
-| `arxiv_url` | URL | arXiv abstract/preprint URL. |
-| `doi` | string | DOI, for example `10.1234/example.5678`. |
-| `formalisation_system` | string | For example `Lean 4`. |
-| `verification_status` | string | Concise factual verification note. |
-| `authorship` | string | Public authorship/contribution statement. |
-| `original_problem_source` | string | Attribution for the original problem, construction, conjecture, or source where relevant. |
+| `palomar_id` | string or `null` | Palomar Registry identifier. |
+| `palomar_url` | URL or `null` | Palomar entry URL. |
+| `paper_url` | URL or `null` | Paper or manuscript URL. |
+| `arxiv_id` | string or `null` | arXiv identifier. |
+| `arxiv_url` | URL or `null` | arXiv abstract/preprint URL. |
+| `doi` | string or `null` | DOI, for example `10.1234/example.5678`. |
+| `formalisation_system` | string or `null` | For example `Lean 4`. |
+| `verification` | string or `null` | Concise factual verification note. |
+| `attribution` | string or `null` | Public authorship/contribution and attribution statement. |
+| `original_source` | string or `null` | Original problem, construction, conjecture, paper, or source attribution where relevant. |
 | `featured` | boolean | Whether the project may appear in the selected work on Home. Defaults to `false`. |
 | `additional_links` | array | Extra links as objects with required `label` and `url` strings. Defaults to `[]`. |
 
-Unknown fields are rejected. Optional fields should be omitted when they do not apply; the interface hides absent fields.
+Unknown fields are rejected. Optional scalar fields may be omitted or set to `null` when they do not apply; the interface hides both absent and null fields.
 
 ## Status vocabulary
 
@@ -81,6 +81,10 @@ This example is illustrative only and is not live project data:
   "topics": ["Graph theory", "Formal verification"],
   "github_url": "https://github.com/example/example-finite-graph-project",
   "formalisation_system": "Lean 4",
+  "verification": "Machine-checked example verification.",
+  "attribution": "Fictional example only.",
+  "original_source": null,
+  "paper_url": null,
   "featured": true,
   "additional_links": [
     {
