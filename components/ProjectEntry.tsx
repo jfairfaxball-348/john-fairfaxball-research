@@ -4,11 +4,12 @@ import { Markdown } from "./Markdown";
 
 export function ProjectEntry({ project }: { project: ResearchProject }) {
   const actions = [
-    project.githubUrl && { label: "GitHub", url: project.githubUrl },
-    project.palomarUrl && { label: "Palomar", url: project.palomarUrl },
-    project.paperUrl && { label: "Paper", url: project.paperUrl },
-    project.arxivUrl && { label: "arXiv", url: project.arxivUrl },
-    ...project.links,
+    { label: "GitHub", url: project.github_url },
+    project.palomar_url && { label: "Palomar", url: project.palomar_url },
+    project.paper_url && { label: "Paper", url: project.paper_url },
+    project.arxiv_url && { label: "arXiv", url: project.arxiv_url },
+    project.doi && { label: "DOI", url: `https://doi.org/${project.doi}` },
+    ...project.additional_links,
   ].filter(Boolean) as { label: string; url: string }[];
 
   return (
@@ -24,6 +25,7 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
       <p className="project-headline">{project.headline}</p>
       <div className="prose project-description">
         <Markdown>{project.description}</Markdown>
+        {project.summary && <Markdown>{project.summary}</Markdown>}
       </div>
 
       {project.topics.length > 0 && (
@@ -34,30 +36,57 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
         </ul>
       )}
 
-      {(project.formalisationSystem || project.verification || project.palomarId) && (
+      {(project.date ||
+        project.formalisation_system ||
+        project.verification_status ||
+        project.palomar_id ||
+        project.palomar_id ||
+        project.arxiv_id ||
+        project.doi) && (
         <dl className="project-details">
-          {project.formalisationSystem && (
+          {project.date && (
+            <div>
+              <dt>Date</dt>
+              <dd>{project.date}</dd>
+            </div>
+          )}
+          {project.formalisation_system && (
             <div>
               <dt>Formalisation</dt>
-              <dd>{project.formalisationSystem}</dd>
+              <dd>{project.formalisation_system}</dd>
             </div>
           )}
-          {project.verification && (
+          {project.verification_status && (
             <div>
               <dt>Verification</dt>
-              <dd>{project.verification}</dd>
+              <dd>{project.verification_status}</dd>
             </div>
           )}
-          {project.palomarId && (
+          {project.palomar_id && (
             <div>
               <dt>Palomar</dt>
-              <dd>{project.palomarId}</dd>
+              <dd>{project.palomar_id}</dd>
+            </div>
+          )}
+          {project.arxiv_id && (
+            <div>
+              <dt>arXiv</dt>
+              <dd>{project.arxiv_id}</dd>
+            </div>
+          )}
+          {project.doi && (
+            <div>
+              <dt>DOI</dt>
+              <dd>{project.doi}</dd>
             </div>
           )}
         </dl>
       )}
 
-      {project.attribution && <p className="attribution">{project.attribution}</p>}
+      {project.authorship && <p className="attribution">{project.authorship}</p>}
+      {project.original_problem_source && (
+        <p className="attribution">Source attribution: {project.original_problem_source}</p>
+      )}
 
       {actions.length > 0 && (
         <div className="project-actions" aria-label={`${project.title} links`}>
