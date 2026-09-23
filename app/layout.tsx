@@ -14,11 +14,13 @@ export const metadata: Metadata = {
     template: `%s — ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     title: siteConfig.title,
     description: siteConfig.description,
     siteName: siteConfig.name,
+    url: "/",
   },
   robots: { index: true, follow: true },
 };
