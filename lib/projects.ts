@@ -1,94 +1,92 @@
-import { z } from "zod";
+import {
+  decodeProjectMetadataResponse,
+  type MetadataDiagnostic,
+  RESEARCH_METADATA_FILENAME,
+  type ResearchProject,
+} from "@/lib/research-metadata";
+import { researchRepositorySources, type ResearchRepositorySource } from "@/lib/research-repositories";
 
-export const projectStatuses = [
-  "Exploratory",
-  "Active research",
-  "Proof complete",
-  "Formalisation in progress",
-  "Formally verified",
-  "Palomar verified",
-  "Preprint",
-  "Published",
-  "Archived",
-  "Discontinued",
-] as const;
+export type { ResearchProject } from "@/lib/research-metadata";
 
-const linkSchema = z.object({
-  label: z.string().min(1),
-  url: z.url(),
-});
+export const RESEARCH_METADATA_REVALIDATE_SECONDS = 60 * 60;
 
-const projectSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().regex(/^[a-z0-9-]+$/),
-  status: z.enum(projectStatuses),
-  headline: z.string().min(1),
-  year: z.number().int().min(2000).max(2100),
-  description: z.string().min(1),
-  summary: z.string().optional(),
-  topics: z.array(z.string().min(1)).default([]),
-  githubUrl: z.url().optional(),
-  palomarId: z.string().optional(),
-  palomarUrl: z.url().optional(),
-  paperUrl: z.url().optional(),
-  arxivId: z.string().optional(),
-  arxivUrl: z.url().optional(),
-  doi: z.string().optional(),
-  formalisationSystem: z.string().optional(),
-  verification: z.string().optional(),
-  attribution: z.string().optional(),
-  originalSource: z.string().optional(),
-  featured: z.boolean().default(false),
-  links: z.array(linkSchema).default([]),
-});
+function metadataUrl(source: ResearchRepositorySource) {
+  return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}`;
+}
 
-export type ResearchProject = z.infer<typeof projectSchema>;
+async function fetchProjectMetadata(source: ResearchRepositorySource) {
+  let response: Response;
 
-const rawProjects = [
-  {
-    title: "Fischer Zero-Forcing Counterexample",
-    slug: "fischer-zero-forcing-counterexample",
-    status: "Palomar verified",
-    headline: "A Lean 4 formalisation of Mikko Fischer's explicit 24-vertex counterexample.",
-    year: 2026,
-    description:
-      "The formalisation verifies that Fischer's graph has independence number $\\alpha(H)=9$ and zero-forcing number $Z(H)=11$, establishing the stated counterexample in Lean 4. The underlying graph and mathematical counterexample are due to Mikko Fischer; this project is the formalisation and verification work.",
-    topics: ["Graph theory", "Zero forcing", "Formal verification"],
-    githubUrl: "https://github.com/jfairfaxball-348/Fischer-Zero-Forcing-Counterexample",
-    palomarId: "PALOMAR-2026-09-20-000009",
-    palomarUrl:
-      "https://palomar-registry.org/entry.html?id=PALOMAR-2026-09-20-000009&version=1",
-    formalisationSystem: "Lean 4",
-    verification: "Registered and independently verified by the Palomar Registry.",
-    attribution:
-      "Counterexample: Mikko Fischer. Lean 4 formalisation and verification: John Fairfax-Ball.",
-    featured: true,
-  },
-  {
-    title: "TreeStack",
-    slug: "treestack",
-    status: "Active research",
-    headline: "Active research project.",
-    year: 2026,
-    description: "Active research project. Full project summary forthcoming.",
-    topics: ["Discrete mathematics"],
-    githubUrl:
-      "https://github.com/jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees",
-    featured: true,
-  },
-  {
-    title: "Petersen",
-    slug: "petersen",
-    status: "Active research",
-    headline: "Active research project.",
-    year: 2026,
-    description: "Active research project. Full project summary forthcoming.",
-    topics: ["Graph theory"],
-    githubUrl: "https://github.com/jfairfaxball-348/Petersen-Zero-Forcing",
-    featured: true,
-  },
-] satisfies unknown[];
+  try {
+    response = await fetch(metadataUrl(source), {
+      headers: { Accept: "application/json" },
+      next: { revalidate: RESEARCH_METADATA_REVALIDATE_SECONDS },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown network error";
+    return {
+      kind: "fetch_error" as const,
+      diagnostic: {
+        repository: source.repository,
+        kind: "fetch_error" as const,
+        message: `Unable to fetch ${RESEARCH_METADATA_FILENAME}: ${message}`,
+      },
+    };
+  }
 
-export const projects: ResearchProject[] = z.array(projectSchema).parse(rawProjects);
+  return decodeProjectMetadataResponse(source.repository, response);
+}
 
-export const featuredProjects = projects.filter((project) => project.featured);
+function reportDiagnostics(diagnostics: MetadataDiagnostic[]) {
+  for (const diagnostic of diagnostics) {
+    const line = `[research metadata] ${diagnostic.repository}: ${diagnostic.message}`;
+    if (diagnostic.kind === "missing") {
+      console.warn(line);
+    } else {
+      console.error(line);
+    }
+  }
+}
+
+export async function getResearchProjects(): Promise<{
+  projects: ResearchProject[];
+  diagnostics: MetadataDiagnostic[];
+}> {
+  const results = await Promise.all(
+    researchRepositorySources.map(async (source) => ({
+      source,
+      result: await fetchProjectMetadata(source),
+    })),
+  );
+  const projects: ResearchProject[] = [];
+  const diagnostics: MetadataDiagnostic[] = [];
+  const seenSlugs = new Set<string>();
+
+  for (const { source, result } of results) {
+    if (result.kind !== "ok") {
+      diagnostics.push(result.diagnostic);
+      continue;
+    }
+
+    if (seenSlugs.has(result.project.slug)) {
+      diagnostics.push({
+        repository: source.repository,
+        kind: "invalid",
+        message: `Duplicate project slug \"${result.project.slug}\"`,
+      });
+      continue;
+    }
+
+    seenSlugs.add(result.project.slug);
+    projects.push(result.project);
+  }
+
+  projects.sort((a, b) => {
+    if (a.year !== b.year) return b.year - a.year;
+    if (a.date && b.date && a.date !== b.date) return b.date.localeCompare(a.date);
+    return a.title.localeCompare(b.title);
+  });
+
+  reportDiagnostics(diagnostics);
+  return { projects, diagnostics };
+}
