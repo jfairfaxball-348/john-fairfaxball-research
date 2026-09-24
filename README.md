@@ -65,6 +65,7 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/Fischer-Zero-Forcing-Counterexample`
 - `jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees`
 - `jfairfaxball-348/Petersen-Zero-Forcing`
+- `jfairfaxball-348/pascal-minus-one`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
 
@@ -87,12 +88,12 @@ A missing metadata file does not bring down the site: that repository is skipped
 
 ## Server-side fetching and cache
 
-Metadata is fetched server-side from the approved public GitHub repositories. Each request uses a one-hour (`3600` second) Next.js revalidation interval, so ordinary visitors do not trigger an uncached GitHub request on every page load and no client-side fetch is needed.
+Metadata is fetched server-side from the approved public GitHub repositories. Each request uses a five-minute (`300` second) Next.js revalidation interval, so ordinary visitors do not trigger an uncached GitHub request on every page load and no client-side fetch is needed.
 
 Therefore:
 
 - website code change -> commit/push -> Vercel rebuild/deploy;
-- research metadata change -> GitHub source file changes -> cached metadata is eligible to refresh after one hour;
+- research metadata change -> GitHub source file changes -> cached metadata is eligible to refresh after five minutes;
 - no cross-repository webhook or deploy hook is required at this stage.
 
 No private GitHub token is required for the current public-repository architecture.
