@@ -129,10 +129,11 @@ Automated tests cover successful parsing, missing metadata, malformed optional m
 
 The App Router server components fetch the root metadata file directly from `raw.githubusercontent.com`. Visitors do not need client-side JavaScript to retrieve research records.
 
-Each source fetch uses Next.js data-cache revalidation of 3,600 seconds (one hour). This means:
+Each source fetch uses Next.js data-cache revalidation of 300 seconds (five minutes). The request URL also carries a small website cache-version marker so a stale historical response can be deliberately invalidated when ingestion behaviour changes. This means:
 
 - a website-code push triggers the normal Vercel rebuild/deploy once the Vercel project is connected;
 - a change to a research repository's `meta_data_for_website.json` does not need a cross-repository webhook;
-- after the cached entry becomes stale, the next server request can refresh it from GitHub and subsequent requests use the refreshed data.
+- after the cached entry becomes stale, the next server request can refresh it from GitHub and subsequent requests use the refreshed data;
+- a repository that was initially private or missing its metadata should normally become visible within about five minutes after the metadata becomes publicly accessible.
 
 Public repositories require no GitHub token for this architecture.
