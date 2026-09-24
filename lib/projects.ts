@@ -8,10 +8,11 @@ import { researchRepositorySources, type ResearchRepositorySource } from "@/lib/
 
 export type { ResearchProject } from "@/lib/research-metadata";
 
-export const RESEARCH_METADATA_REVALIDATE_SECONDS = 60 * 60;
+export const RESEARCH_METADATA_REVALIDATE_SECONDS = 5 * 60;
+const RESEARCH_METADATA_CACHE_VERSION = "2";
 
 function metadataUrl(source: ResearchRepositorySource) {
-  return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}`;
+  return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}?website-cache=${RESEARCH_METADATA_CACHE_VERSION}`;
 }
 
 async function fetchProjectMetadata(source: ResearchRepositorySource) {
