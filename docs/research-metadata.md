@@ -19,7 +19,7 @@ Required fields:
 | `schema_version` | integer | Must be exactly `1`. |
 | `title` | string | Public project title. |
 | `slug` | string | Lowercase letters/numbers with single hyphens between segments. Must be unique across the website registry. |
-| `status` | enum | Research maturity status from the vocabulary below. |
+| `status` | string | Short public research-status label. The vocabulary below is recommended, but descriptive composite labels are accepted. |
 | `headline` | string | Short factual one-line description. |
 | `year` | integer | Project/result year. |
 | `description` | string | Main public description; Markdown and mathematical notation are supported. |
@@ -49,7 +49,7 @@ Unknown fields are rejected. Optional scalar fields may be omitted or set to `nu
 
 ## Status vocabulary
 
-The allowed status values are:
+The following base status values are recommended for consistency:
 
 - `Exploratory`
 - `Active research`
@@ -62,7 +62,7 @@ The allowed status values are:
 - `Archived`
 - `Discontinued`
 
-Statuses describe research maturity; they are not promotional ratings.
+Statuses describe research maturity; they are not promotional ratings. Short descriptive composite labels are also accepted (for example, `Palomar verified · novelty audit in progress`). Status wording is display metadata and is not used for application logic.
 
 ## Example
 

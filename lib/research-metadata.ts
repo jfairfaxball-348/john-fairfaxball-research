@@ -31,7 +31,7 @@ export const projectMetadataSchema = z
     schema_version: z.literal(RESEARCH_METADATA_SCHEMA_VERSION),
     title: z.string().min(1),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    status: z.enum(projectStatuses),
+    status: z.string().min(1).max(120),
     headline: z.string().min(1),
     year: z.number().int().min(1900).max(2100),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),

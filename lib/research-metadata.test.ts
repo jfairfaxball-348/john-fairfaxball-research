@@ -21,6 +21,14 @@ test("valid metadata parses and applies optional defaults", () => {
   assert.equal(parsed.featured, true);
 });
 
+test("descriptive status wording is accepted", () => {
+  const parsed = projectMetadataSchema.parse({
+    ...validMetadata,
+    status: "Palomar verified · novelty audit in progress",
+  });
+  assert.equal(parsed.status, "Palomar verified · novelty audit in progress");
+});
+
 test("explicit nulls are accepted for absent optional scalar fields", () => {
   const parsed = projectMetadataSchema.parse({
     ...validMetadata,
