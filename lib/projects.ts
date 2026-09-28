@@ -9,7 +9,7 @@ import { researchRepositorySources, type ResearchRepositorySource } from "@/lib/
 export type { ResearchProject } from "@/lib/research-metadata";
 
 export const RESEARCH_METADATA_REVALIDATE_SECONDS = 5 * 60;
-const RESEARCH_METADATA_CACHE_VERSION = "3";
+const RESEARCH_METADATA_CACHE_VERSION = "4";
 
 function metadataUrl(source: ResearchRepositorySource) {
   return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}?website-cache=${RESEARCH_METADATA_CACHE_VERSION}`;
@@ -73,7 +73,7 @@ export async function getResearchProjects(): Promise<{
       diagnostics.push({
         repository: source.repository,
         kind: "invalid",
-        message: `Duplicate project slug \"${result.project.slug}\"`,
+        message: `Duplicate project slug "${result.project.slug}"`,
       });
       continue;
     }
@@ -83,9 +83,7 @@ export async function getResearchProjects(): Promise<{
   }
 
   projects.sort((a, b) => {
-    const aDate = a.date ?? `${a.year}-01-01`;
-    const bDate = b.date ?? `${b.year}-01-01`;
-    const dateOrder = bDate.localeCompare(aDate);
+    const dateOrder = b.date.localeCompare(a.date);
     return dateOrder !== 0 ? dateOrder : a.title.localeCompare(b.title);
   });
 
