@@ -12,6 +12,10 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
     ...project.additional_links,
   ].filter(Boolean) as { label: string; url: string }[];
 
+  const uniqueActions = actions.filter(
+    (action, index) => actions.findIndex((candidate) => candidate.url === action.url) === index,
+  );
+
   const originalSourceIsUrl = Boolean(project.original_source?.match(/^https?:\/\//));
 
   return (
@@ -84,10 +88,14 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
         </dl>
       )}
 
-      {project.attribution && <p className="attribution">{project.attribution}</p>}
+      {project.attribution && (
+        <p className="attribution">
+          <strong>Attribution:</strong> {project.attribution}
+        </p>
+      )}
       {project.original_source && (
         <p className="attribution">
-          Source attribution:{" "}
+          <strong>Prior / source research:</strong>{" "}
           {originalSourceIsUrl ? (
             <Link href={project.original_source}>{project.original_source} ↗</Link>
           ) : (
@@ -96,9 +104,9 @@ export function ProjectEntry({ project }: { project: ResearchProject }) {
         </p>
       )}
 
-      {actions.length > 0 && (
+      {uniqueActions.length > 0 && (
         <div className="project-actions" aria-label={`${project.title} links`}>
-          {actions.map((action) => (
+          {uniqueActions.map((action) => (
             <Link key={`${action.label}-${action.url}`} href={action.url}>
               {action.label} <span aria-hidden="true">↗</span>
             </Link>
