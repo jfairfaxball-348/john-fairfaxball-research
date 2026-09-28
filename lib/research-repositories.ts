@@ -20,4 +20,8 @@ export const researchRepositorySources = [
     repository: "jfairfaxball-348/pascal-minus-one",
     ref: "main",
   },
+  {
+    repository: "jfairfaxball-348/leading-digit-hailstone",
+    ref: "main",
+  },
 ] as const satisfies readonly ResearchRepositorySource[];
