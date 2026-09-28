@@ -9,6 +9,7 @@ const validMetadata = {
   status: "Active research",
   headline: "A bounded example used only for schema tests.",
   year: 2026,
+  date: "2026-09-28",
   description: "A description with inline mathematics such as $x^2$.",
   topics: ["Graph theory"],
   github_url: "https://github.com/example/example-project",
@@ -21,12 +22,18 @@ test("valid metadata parses and applies optional defaults", () => {
   assert.equal(parsed.featured, true);
 });
 
-test("descriptive status wording is accepted", () => {
-  const parsed = projectMetadataSchema.parse({
-    ...validMetadata,
-    status: "Palomar verified · novelty audit in progress",
-  });
-  assert.equal(parsed.status, "Palomar verified · novelty audit in progress");
+test("status must use the controlled public stage vocabulary", () => {
+  assert.throws(() =>
+    projectMetadataSchema.parse({
+      ...validMetadata,
+      status: "Palomar verified · novelty audit in progress",
+    }),
+  );
+});
+
+test("date is required for deterministic catalogue ordering", () => {
+  const { date: _date, ...withoutDate } = validMetadata;
+  assert.throws(() => projectMetadataSchema.parse(withoutDate));
 });
 
 test("explicit nulls are accepted for absent optional scalar fields", () => {
