@@ -24,4 +24,8 @@ export const researchRepositorySources = [
     repository: "jfairfaxball-348/leading-digit-hailstone",
     ref: "main",
   },
+  {
+    repository: "jfairfaxball-348/ProbStack-Random-Stacking-on-Trees",
+    ref: "main",
+  },
 ] as const satisfies readonly ResearchRepositorySource[];
