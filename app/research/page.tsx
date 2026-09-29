@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ProjectEntry } from "@/components/ProjectEntry";
 import { getResearchProjects } from "@/lib/projects";
 
+export const revalidate = 5 * 60;
+
 export const metadata: Metadata = {
   title: "Research",
   description: "Research projects by John Fairfax-Ball, including formal verification and reproducible mathematical work.",
