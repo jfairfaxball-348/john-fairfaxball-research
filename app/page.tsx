@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ProjectEntry } from "@/components/ProjectEntry";
 import { getResearchProjects } from "@/lib/projects";
 
+export const revalidate = 5 * 60;
+
 export default async function Home() {
   const { projects } = await getResearchProjects();
   const homepageProjects = projects;
