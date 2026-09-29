@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ProjectEntry } from "@/components/ProjectEntry";
 import { getResearchProjects } from "@/lib/projects";
 
-export const revalidate = 5 * 60;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Research",
