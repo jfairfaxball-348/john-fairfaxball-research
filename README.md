@@ -47,7 +47,7 @@ The data flow is:
 ```text
 approved research repository
   -> meta_data_for_website.json
-  -> server-side Next.js aggregator
+  -> request-time server-side Next.js aggregator
   -> Zod validation
   -> Home / Research
 ```
@@ -66,6 +66,8 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees`
 - `jfairfaxball-348/Petersen-Zero-Forcing`
 - `jfairfaxball-348/pascal-minus-one`
+- `jfairfaxball-348/leading-digit-hailstone`
+- `jfairfaxball-348/ProbStack-Random-Stacking-on-Trees`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
 
@@ -82,19 +84,21 @@ After a repository is on the allow-list, subsequent public metadata edits happen
 
 `lib/research-metadata.ts` defines the strict versioned Zod contract. Fetched JSON must pass that contract before rendering.
 
-A missing metadata file does not bring down the site: that repository is skipped and a clear server/build warning is emitted. Invalid JSON, invalid fields, non-404 fetch failures and duplicate slugs are also skipped with deliberate diagnostics. Nothing is inferred or fabricated from a repository name.
+A missing metadata file does not bring down the site: that repository is skipped and a clear server warning is emitted. Invalid JSON, invalid fields, non-404 fetch failures and duplicate slugs are also skipped with deliberate diagnostics. Nothing is inferred or fabricated from a repository name.
 
 `npm run test:metadata` covers valid parsing, missing metadata, malformed optional fields and invalid JSON. CI runs it alongside lint, TypeScript and the production build.
 
-## Server-side fetching and cache
+## Server-side fetching and freshness
 
-Metadata is fetched server-side from the approved public GitHub repositories. Each request uses a five-minute (`300` second) Next.js revalidation interval, so ordinary visitors do not trigger an uncached GitHub request on every page load and no client-side fetch is needed.
+Metadata is fetched server-side from the approved public GitHub repositories on each request to the Home or Research page. These routes are explicitly dynamic, the Next.js fetch uses `cache: "no-store"`, and the raw GitHub URL carries a per-request freshness token so stale application/CDN metadata is not deliberately retained.
 
 Therefore:
 
 - website code change -> commit/push -> Vercel rebuild/deploy;
-- research metadata change -> GitHub source file changes -> cached metadata is eligible to refresh after five minutes;
-- no cross-repository webhook or deploy hook is required at this stage.
+- research metadata change -> GitHub source file changes -> the next website request reads the current metadata;
+- no manual cache-version bump, five-minute revalidation wait, cross-repository webhook or deploy hook is required.
+
+This is intentionally optimized for a small catalogue of tiny JSON documents where correctness and freshness matter more than avoiding a handful of inexpensive public reads.
 
 No private GitHub token is required for the current public-repository architecture.
 
