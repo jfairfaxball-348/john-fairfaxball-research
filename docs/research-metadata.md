@@ -76,6 +76,8 @@ The badge is deliberately a **single current stage**, not a list of achievements
 
 Put supporting milestones in the dedicated fields instead of concatenating them into the badge. For example, a project whose Lean proof and Palomar verification are complete but whose submitted manuscript is waiting for arXiv should use `Awaiting arXiv`, while the Lean and Palomar facts belong under `formalisation_system`, `verification`, `palomar_id` and `palomar_url`.
 
+Because status values are deliberately controlled, wording such as `Preprint posted` should be normalized to the canonical `arXiv preprint` stage before committing the metadata file.
+
 ## Descriptions, attribution and prior work
 
 Keep the public text layered and non-duplicative:
@@ -147,6 +149,17 @@ Every fetched metadata document is parsed as JSON and validated with the Zod sch
 - Duplicate slugs are rejected at aggregation time.
 - The site never fabricates titles, descriptions or research claims from repository names.
 
-## Fetching, cache and revalidation
+## Fetching and freshness
 
-The App Router server components fetch the root metadata file directly from `raw.githubusercontent.com`. Each source fetch uses Next.js data-cache revalidation of 300 seconds (five minutes), and the cache-version marker can be bumped when ingestion behaviour changes.
+The Home and Research routes are request-time dynamic. The server fetches each registered root metadata file directly from `raw.githubusercontent.com` using `cache: "no-store"`, no Next.js revalidation cache, and a per-request query token that prevents the old fixed raw-GitHub URL from being reused by intermediary caches.
+
+For an already-registered repository, the intended update path is therefore:
+
+```text
+edit meta_data_for_website.json
+  -> push to main
+  -> refresh the website
+  -> current metadata is fetched and rendered
+```
+
+Do not add a fixed cache-version marker or timed page/data revalidation for research metadata. The catalogue is intentionally small, so request-time freshness is preferred over persistent caching.
