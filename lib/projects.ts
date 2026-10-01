@@ -8,11 +8,9 @@ import { researchRepositorySources, type ResearchRepositorySource } from "@/lib/
 
 export type { ResearchProject } from "@/lib/research-metadata";
 
-export const RESEARCH_METADATA_REVALIDATE_SECONDS = 5 * 60;
-const RESEARCH_METADATA_CACHE_VERSION = "5";
-
 function metadataUrl(source: ResearchRepositorySource) {
-  return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}?website-cache=${RESEARCH_METADATA_CACHE_VERSION}`;
+  const cacheBuster = Date.now();
+  return `https://raw.githubusercontent.com/${source.repository}/${source.ref}/${RESEARCH_METADATA_FILENAME}?fresh=${cacheBuster}`;
 }
 
 async function fetchProjectMetadata(source: ResearchRepositorySource) {
@@ -20,8 +18,12 @@ async function fetchProjectMetadata(source: ResearchRepositorySource) {
 
   try {
     response = await fetch(metadataUrl(source), {
-      headers: { Accept: "application/json" },
-      next: { revalidate: RESEARCH_METADATA_REVALIDATE_SECONDS },
+      headers: {
+        Accept: "application/json",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+      cache: "no-store",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown network error";
