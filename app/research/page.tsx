@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { ProjectEntry } from "@/components/ProjectEntry";
 import { getResearchProjects } from "@/lib/projects";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Research",
