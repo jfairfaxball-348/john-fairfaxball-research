@@ -66,6 +66,7 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees`
 - `jfairfaxball-348/Petersen-Zero-Forcing`
 - `jfairfaxball-348/pascal-minus-one`
+- `jfairfaxball-348/Pascal-Extremes`
 - `jfairfaxball-348/leading-digit-hailstone`
 - `jfairfaxball-348/ProbStack-Random-Stacking-on-Trees`
 

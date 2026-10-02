@@ -21,6 +21,10 @@ export const researchRepositorySources = [
     ref: "main",
   },
   {
+    repository: "jfairfaxball-348/Pascal-Extremes",
+    ref: "main",
+  },
+  {
     repository: "jfairfaxball-348/leading-digit-hailstone",
     ref: "main",
   },
