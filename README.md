@@ -62,12 +62,9 @@ Full field definitions, status values, a fictional example and failure behaviour
 
 `lib/research-repositories.ts` is the small allow-list of repositories the website is permitted to ingest. It currently contains:
 
-- `jfairfaxball-348/Fischer-Zero-Forcing-Counterexample`
 - `jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees`
-- `jfairfaxball-348/Petersen-Zero-Forcing`
 - `jfairfaxball-348/pascal-minus-one`
 - `jfairfaxball-348/Pascal-Extremes`
-- `jfairfaxball-348/leading-digit-hailstone`
 - `jfairfaxball-348/ProbStack-Random-Stacking-on-Trees`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.

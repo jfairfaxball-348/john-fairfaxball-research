@@ -5,15 +5,7 @@ export type ResearchRepositorySource = {
 
 export const researchRepositorySources = [
   {
-    repository: "jfairfaxball-348/Fischer-Zero-Forcing-Counterexample",
-    ref: "main",
-  },
-  {
     repository: "jfairfaxball-348/TreeStack-Structural-Certificates-for-Stacking-on-Trees",
-    ref: "main",
-  },
-  {
-    repository: "jfairfaxball-348/Petersen-Zero-Forcing",
     ref: "main",
   },
   {
@@ -22,10 +14,6 @@ export const researchRepositorySources = [
   },
   {
     repository: "jfairfaxball-348/Pascal-Extremes",
-    ref: "main",
-  },
-  {
-    repository: "jfairfaxball-348/leading-digit-hailstone",
     ref: "main",
   },
   {
