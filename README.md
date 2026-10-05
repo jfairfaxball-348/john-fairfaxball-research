@@ -66,6 +66,7 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/pascal-minus-one`
 - `jfairfaxball-348/Pascal-Extremes`
 - `jfairfaxball-348/ProbStack-Random-Stacking-on-Trees`
+- `jfairfaxball-348/Greedy-Uniformity-on-Trees`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
 
