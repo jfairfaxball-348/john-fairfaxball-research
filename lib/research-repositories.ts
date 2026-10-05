@@ -20,4 +20,8 @@ export const researchRepositorySources = [
     repository: "jfairfaxball-348/ProbStack-Random-Stacking-on-Trees",
     ref: "main",
   },
+  {
+    repository: "jfairfaxball-348/Greedy-Uniformity-on-Trees",
+    ref: "main",
+  },
 ] as const satisfies readonly ResearchRepositorySource[];
