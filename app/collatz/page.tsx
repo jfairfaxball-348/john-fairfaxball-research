@@ -19,6 +19,8 @@ const introduction = `
 Take any positive whole number. If it is even, halve it; if it is odd, multiply by three and add one. Repeat. The **Collatz conjecture** says that every starting number eventually reaches 1. Nobody has proved it, but computers have checked enormous ranges: every number below $2^{71} \\approx 2.36 \\times 10^{21}$ has been verified in peer-reviewed work, and a long-running distributed project reports progress somewhat beyond that.
 
 This project starts at that reported edge and checks the **next consecutive integers**, in batches, on a single machine. Because every smaller number is already known to reach 1, it is enough to show that each new number eventually falls below where it started. Most numbers are dismissed instantly by short, proved shortcuts; the rest have their trajectories computed exactly. Every batch produces a certificate that is checked and replayed independently before it counts.
+
+Current runs continue sequentially in batches of **9,999 integers**, without a target quantity. A clean stop finishes the active batch before the verified results are published.
 `;
 
 const ruleLabels: Record<string, string> = {

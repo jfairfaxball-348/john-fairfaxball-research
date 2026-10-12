@@ -30,22 +30,6 @@ function time(value: string) {
   return `${formatted} UTC`;
 }
 
-function Meter({ value, max, label }: { value: number; max: number; label: string }) {
-  const percent = max > 0 ? Math.min(100, (value / max) * 100) : 0;
-  return (
-    <div
-      className="meter"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={max}
-      aria-valuenow={value}
-    >
-      <span style={{ width: `${percent}%` }} />
-    </div>
-  );
-}
-
 export function FrontierLiveView({
   initialView,
   base,
@@ -128,10 +112,9 @@ export function FrontierLiveView({
           {report?.session ? (
             <>
               <p className="live-value">
-                {group(report.session.completed)}{report.session.requested !== null && <> / {group(report.session.requested)}</>}
+                {group(report.session.completed)}
               </p>
-              {report.session.requested !== null && <Meter value={report.session.completed} max={report.session.requested} label="Session progress" />}
-              <p className="live-sub">{report.session.requested === null ? "integers checked in this continuous session" : "integers requested in the current run"}</p>
+              <p className="live-sub">integers checked this session</p>
             </>
           ) : (
             <p className="live-value muted">—</p>

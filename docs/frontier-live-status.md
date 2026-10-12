@@ -26,7 +26,7 @@ The browser polls `/api/frontier/live` every 15 seconds while the tab is visible
 | machine unreachable, HTTP error or 5 s timeout | Working offline |
 | response fails the schema below | Working offline |
 | `updated_at` older than 5 minutes | Updates delayed, with last batch/session details and report time |
-| fresh valid status | Live panel: current batch, session progress, recent batches |
+| fresh valid status | Latest batch checked and integers checked this session |
 
 The fetch happens on the server, so the machine's address is never sent to visitors. If the endpoint needs protecting, set `FRONTIER_LIVE_STATUS_TOKEN`; it is sent as `Authorization: Bearer <token>`.
 
@@ -78,4 +78,4 @@ The status branch is separate from `main`, the immutable scientific chain and th
 
 ### Continuous sessions
 
-The owner may use `python C:/CEML/tools/operator/run_frontier.py start` without a quantity, checking sequential 9999-wide batches. The same command with `stop` in a second terminal finishes the current batch before exit and publishing. The accepted chain still ends at 256 batches. Live session `mode` can be `continuous`, with `requested: null`; the panel displays the completed count with no invented target or percentage. Finite sessions retain their requested total and meter, and legacy payloads without `mode` remain valid. No session metadata changes the published verified tally.
+The owner may use `python C:/CEML/tools/operator/run_frontier.py start` without a quantity, checking sequential 9999-wide batches. The same command with `stop` in a second terminal finishes the current batch before exit and publishing. The accepted chain still ends at 256 batches. Live session `mode` can be `continuous`, with `requested: null`; the panel always displays only integers checked this session, with no target quantity or percentage. Requested totals remain accepted in legacy finite payloads for compatibility but are not displayed. No session metadata changes the published verified tally.
