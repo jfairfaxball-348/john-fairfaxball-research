@@ -28,6 +28,8 @@ Run the full local verification set with:
 npm run lint
 npm run typecheck
 npm run test:metadata
+npm run test:site
+npm run test:frontier
 npm run build
 ```
 
@@ -35,6 +37,7 @@ npm run build
 
 - `/` — home page and selected/featured research
 - `/research` — canonical catalogue of available research projects
+- `/collatz` — Collatz frontier verification tally (from `jfairfaxball-348/CEML`) and live machine view; see [`docs/frontier-live-status.md`](docs/frontier-live-status.md)
 - `/about` — short research biography/programme description
 - `/contact` — public contact/profile links
 
@@ -100,6 +103,8 @@ Therefore:
 This is intentionally optimized for a small catalogue of tiny JSON documents where correctness and freshness matter more than avoiding a handful of inexpensive public reads.
 
 No private GitHub token is required for the current public-repository architecture.
+
+The `/collatz` page follows the same pattern: it reads `frontier_progress_for_website.json` from the CEML repository on each request. Its optional live view is configured only through the server-side `FRONTIER_LIVE_STATUS_URL` and `FRONTIER_LIVE_STATUS_TOKEN` environment variables; while they are unset the page shows "Working offline".
 
 ## Vercel deployment
 

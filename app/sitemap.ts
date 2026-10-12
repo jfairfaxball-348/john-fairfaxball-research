@@ -3,10 +3,10 @@ import { getSiteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getSiteUrl();
-  return ["", "/research", "/about", "/contact"].map((path) => ({
+  return ["", "/research", "/collatz", "/about", "/contact"].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
-    changeFrequency: path === "/research" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : path === "/research" ? 0.9 : 0.6,
+    changeFrequency: path === "/research" ? "weekly" : path === "/collatz" ? "daily" : "monthly",
+    priority: path === "" ? 1 : path === "/research" || path === "/collatz" ? 0.9 : 0.6,
   }));
 }
