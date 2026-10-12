@@ -75,3 +75,7 @@ The panel shows Latest batch checked and This session; there is no current-batch
 2. The website uses the public branch automatically. If the observer stops or cannot upload for five minutes, the last details remain visible with an Updates delayed label.
 
 The status branch is separate from `main`, the immutable scientific chain and the aggregate publication PRs. Heartbeats do not trigger website deployments. The end-of-run CEML command `python C:\CEML\tools\publication\publish.py` performs full verification and publishes the authoritative aggregate and website feed separately.
+
+### Continuous sessions
+
+The owner may use `python C:/CEML/tools/operator/run_frontier.py start` without a quantity, checking sequential 9999-wide batches. The same command with `stop` in a second terminal finishes the current batch before exit and publishing. The accepted chain still ends at 256 batches. Live session `mode` can be `continuous`, with `requested: null`; the panel displays the completed count with no invented target or percentage. Finite sessions retain their requested total and meter, and legacy payloads without `mode` remain valid. No session metadata changes the published verified tally.
