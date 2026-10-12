@@ -70,7 +70,7 @@ export type OfflineReason = "not_configured" | "unreachable" | "invalid" | "stal
 
 export type LiveView =
   | { mode: "live"; checkedAt: string; status: FrontierLiveStatus }
-  | { mode: "offline"; checkedAt: string; reason: OfflineReason; lastSeen: string | null };
+  | { mode: "offline"; checkedAt: string; reason: OfflineReason; lastSeen: string | null; status?: FrontierLiveStatus };
 
 export function resolveLiveView(payload: unknown, now: Date): LiveView {
   const checkedAt = now.toISOString();
@@ -81,7 +81,7 @@ export function resolveLiveView(payload: unknown, now: Date): LiveView {
 
   const age = now.getTime() - Date.parse(parsed.data.updated_at);
   if (age > LIVE_STALE_AFTER_MS) {
-    return { mode: "offline", checkedAt, reason: "stale", lastSeen: parsed.data.updated_at };
+    return { mode: "offline", checkedAt, reason: "stale", lastSeen: parsed.data.updated_at, status: parsed.data };
   }
 
   return { mode: "live", checkedAt, status: parsed.data };

@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import type { LiveView, OfflineReason } from "@/lib/frontier-live";
+import { retainLatestReport } from "@/lib/frontier-live-display";
 
 const offlineNotes: Record<OfflineReason, string> = {
   not_configured: "The verification machine is not publishing live status at the moment.",
-  unreachable: "The verification machine could not be reached.",
+  unreachable: "The latest live update could not be fetched.",
   invalid: "The verification machine sent a status this page could not read.",
-  stale: "The verification machine has not reported recently.",
+  stale: "Live updates are delayed. This does not establish whether the verification machine is online.",
 };
 
 /** Groups digits in threes with thin spaces, matching the tally above. */
@@ -62,9 +63,14 @@ export function FrontierLiveView({
       if (document.hidden) return;
       try {
         const response = await fetch("/api/frontier/live", { cache: "no-store" });
-        if (response.ok && !cancelled) setView((await response.json()) as LiveView);
+        if (response.ok && !cancelled) {
+          const incoming = (await response.json()) as LiveView;
+          setView((previous) => retainLatestReport(previous, incoming));
+        } else if (!cancelled) {
+          setView((previous) => retainLatestReport(previous, { mode: "offline", checkedAt: new Date().toISOString(), reason: "unreachable", lastSeen: null }));
+        }
       } catch {
-        // Keep the last view; the next poll retries.
+        if (!cancelled) setView((previous) => retainLatestReport(previous, { mode: "offline", checkedAt: new Date().toISOString(), reason: "unreachable", lastSeen: null }));
       }
     };
     const timer = window.setInterval(poll, pollIntervalMs);
@@ -74,14 +80,16 @@ export function FrontierLiveView({
     };
   }, [pollIntervalMs]);
 
-  const live = view.mode === "live" ? view.status : null;
+  const report = view.status;
+  const latest = report?.recent_batches.reduce<(typeof report.recent_batches)[number] | undefined>(
+    (best, batch) => batch.status !== "refused" && (!best || batch.number > best.number) ? batch : best, undefined);
   const describe = (value: string) => (base ? offset(value, base) : value);
-  const pillLabel = live ? `Live: ${live.state}` : "Working offline";
+  const pillLabel = view.mode === "live" ? `Live: ${view.status.state}` : report ? "Updates delayed" : "Live updates unavailable";
 
   return (
     <div className="live-panel" aria-live="polite">
       <div className="live-topline">
-        <span className={`live-pill ${live ? `is-${live.state}` : "is-offline"}`}>
+        <span className={`live-pill ${view.mode === "live" ? `is-${view.status.state}` : "is-offline"}`}>
           <span className="live-dot" aria-hidden="true" />
           {pillLabel}
         </span>
@@ -91,29 +99,23 @@ export function FrontierLiveView({
       {view.mode === "offline" && (
         <p className="live-note">
           {offlineNotes[view.reason]}
-          {view.lastSeen && <> Last report: {new Date(view.lastSeen).toUTCString()}.</>} No live updates are shown;
-          the verified tally above is updated each time a checked batch is published.
+          {view.lastSeen && <> Last report: {new Date(view.lastSeen).toUTCString()}.</>} The last reported details remain below;
+          the verified tally above changes after separate verified publication.
         </p>
       )}
-      {live?.message && <p className="live-note">{live.message}</p>}
+      {view.mode === "live" && report?.message && <p className="live-note">{report.message}</p>}
 
-      <div className={`live-grid ${live ? "" : "is-placeholder"}`}>
+      <div className={`live-grid ${report ? "" : "is-placeholder"}`}>
         <div className="live-card">
-          <p className="live-label">Current batch</p>
-          {live?.current_batch ? (
+          <p className="live-label">Latest batch checked</p>
+          {latest ? (
             <>
-              <p className="live-value">Batch {live.current_batch.number}</p>
-              <p className="live-sub" title={`[${live.current_batch.start}, ${live.current_batch.end})`}>
-                {describe(live.current_batch.start)} to {describe(live.current_batch.end)}
+              <p className="live-value">Batch {latest.number}</p>
+              <p className="live-sub" title={`[${latest.start}, ${latest.end})`}>
+                {describe(latest.start)} to {describe(latest.end)}
               </p>
-              <Meter
-                value={live.current_batch.processed}
-                max={live.current_batch.width}
-                label="Current batch progress"
-              />
               <p className="live-sub">
-                {group(live.current_batch.processed)} of{" "}
-                {group(live.current_batch.width)} integers checked
+                {group(latest.width)} integers · {time(latest.finished_at)}
               </p>
             </>
           ) : (
@@ -123,36 +125,18 @@ export function FrontierLiveView({
 
         <div className="live-card">
           <p className="live-label">This session</p>
-          {live?.session ? (
+          {report?.session ? (
             <>
               <p className="live-value">
-                {group(live.session.completed)} / {group(live.session.requested)}
+                {group(report.session.completed)} / {group(report.session.requested)}
               </p>
-              <Meter value={live.session.completed} max={live.session.requested} label="Session progress" />
+              <Meter value={report.session.completed} max={report.session.requested} label="Session progress" />
               <p className="live-sub">integers requested in the current run</p>
             </>
           ) : (
             <p className="live-value muted">—</p>
           )}
         </div>
-      </div>
-
-      <div className={`live-card live-recent ${live ? "" : "is-placeholder"}`}>
-        <p className="live-label">Recently finished batches</p>
-        {live && live.recent_batches.length > 0 ? (
-          <ol className="live-batches">
-            {live.recent_batches.map((batch) => (
-              <li key={batch.number} title={`[${batch.start}, ${batch.end})`}>
-                <span>Batch {batch.number}</span>
-                <span>{group(batch.width)} integers</span>
-                <span className={`live-batch-status is-${batch.status}`}>{batch.status}</span>
-                <span>{time(batch.finished_at)}</span>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="live-sub">Nothing to show while the machine is offline.</p>
-        )}
       </div>
 
       <p className="live-footnote">
