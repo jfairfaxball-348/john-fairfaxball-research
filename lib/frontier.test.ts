@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveLiveView, getLiveView, LIVE_STALE_AFTER_MS } from "./frontier-live.ts";
+import { resolveLiveView, getLiveView, LIVE_STALE_AFTER_MS, DEFAULT_FRONTIER_LIVE_STATUS_URL } from "./frontier-live.ts";
 import { decodeFrontierProgressResponse, groupDigits } from "./frontier-progress.ts";
 
 const base = "2392518188130438742016";
@@ -110,4 +110,23 @@ test("treats a malformed live status as offline", () => {
 test("is offline when no live source is configured", async () => {
   const view = await getLiveView({ FRONTIER_LIVE_STATUS_URL: " " }, () => now);
   assert.equal(view.mode === "offline" && view.reason, "not_configured");
+});
+
+test("reads the public CEML live branch by default without a token", async () => {
+  const original = globalThis.fetch;
+  let requested = "";
+  let authorization: string | null = null;
+  globalThis.fetch = async (input, init) => {
+    requested = String(input);
+    authorization = new Headers(init?.headers).get("Authorization");
+    return new Response(JSON.stringify(liveStatus), { status: 200 });
+  };
+  try {
+    const view = await getLiveView({}, () => now);
+    assert.equal(view.mode, "live");
+    assert.equal(requested, `${DEFAULT_FRONTIER_LIVE_STATUS_URL}?fresh=${now.getTime()}`);
+    assert.equal(authorization, null);
+  } finally {
+    globalThis.fetch = original;
+  }
 });

@@ -3,13 +3,15 @@ import { z } from "zod";
 /**
  * Live status of the local verification machine (see docs/frontier-live-status.md).
  *
- * The machine is not publishing yet, so the page normally shows "working offline".
+ * The optional CEML sidecar publishes to a dedicated public status branch.
  * Live status is informational only: the verified tally comes solely from the
  * published progress record in the research repository.
  */
 export const FRONTIER_LIVE_SCHEMA_VERSION = 1 as const;
 export const LIVE_STALE_AFTER_MS = 5 * 60 * 1000;
 export const LIVE_POLL_INTERVAL_MS = 15 * 1000;
+export const DEFAULT_FRONTIER_LIVE_STATUS_URL =
+  "https://raw.githubusercontent.com/jfairfaxball-348/CEML/live-status/frontier_live_status.json";
 
 const bigInteger = z.string().regex(/^(0|[1-9][0-9]*)$/);
 const timestamp = z.iso.datetime({ offset: true });
@@ -98,7 +100,9 @@ export async function getLiveView(
   },
   now = () => new Date(),
 ): Promise<LiveView> {
-  const url = env.FRONTIER_LIVE_STATUS_URL?.trim();
+  const configured = env.FRONTIER_LIVE_STATUS_URL;
+  const source = configured === undefined ? DEFAULT_FRONTIER_LIVE_STATUS_URL : configured.trim();
+  const url = source ? `${source}${source.includes("?") ? "&" : "?"}fresh=${now().getTime()}` : "";
   if (!url) {
     return { mode: "offline", checkedAt: now().toISOString(), reason: "not_configured", lastSeen: null };
   }
