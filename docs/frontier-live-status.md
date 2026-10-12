@@ -15,13 +15,14 @@ jfairfaxball-348/CEML (main)
 
 The CEML repository owns that file and regenerates it with `tools/publication/website_progress.py` whenever a verified aggregate is published (see CEML `docs/WEBSITE_PUBLICATION.md`). The website never edits it. Large integers are decimal strings and are handled with `BigInt`. If the file is missing or fails validation, the page says the record is temporarily unavailable and logs a server diagnostic.
 
-## 2. Live view (scaffolding; currently offline)
+## 2. Live view (optional publisher)
 
-The browser polls `/api/frontier/live` every 15 seconds while the tab is visible. That route reads the server-only environment variable `FRONTIER_LIVE_STATUS_URL`:
+The browser polls `/api/frontier/live` every 15 seconds while the tab is visible. By default the server reads `https://raw.githubusercontent.com/jfairfaxball-348/CEML/live-status/frontier_live_status.json`. A separate owner-authorised CEML sidecar reads local state and updates that public branch about once a minute. It never affects scientific execution or the verified tally. `FRONTIER_LIVE_STATUS_URL` overrides the default; an explicitly empty value disables it. No hosting secret, tunnel or inbound PC port is needed for the default source.
 
 | Situation | Page shows |
 | --- | --- |
-| variable unset (current state) | **Working offline** |
+| variable unset | use the public CEML live branch |
+| variable explicitly empty | **Working offline** |
 | machine unreachable, HTTP error or 5 s timeout | Working offline |
 | response fails the schema below | Working offline |
 | `updated_at` older than 5 minutes | Working offline, with the last report time |
@@ -68,9 +69,9 @@ Live status is informational only. The tally counts only verified, published bat
 - `current_batch`, `session` and `message` may be `null` or omitted; `recent_batches` holds at most 20 entries.
 - Unknown fields are rejected.
 
-### Turning it on later
+### Operating it
 
-1. On the machine, run a small read-only sidecar that writes this JSON from local run state and serves it over HTTPS (for example through a tunnel). It must stay separate from the CEML runner; see CEML `docs/WEBSITE_PUBLICATION.md` for the constraints. It must not publish machine names, paths or other private identifiers.
-2. In Vercel, set `FRONTIER_LIVE_STATUS_URL` (and optionally `FRONTIER_LIVE_STATUS_TOKEN`) and redeploy.
+1. On the Windows machine, after signing into GitHub CLI, run `python C:\CEML\tools\publication\live.py start`. It starts a hidden, separate observer. Use `stop` to stop live uploads; the scientific runner is unaffected. Only allowlisted aggregate fields leave the machine. Local paths, addresses, command lines, identifiers and credentials are excluded. The observer's checkpoint cursor is provisional and recent `committed` entries are informational local observations, not independent verification.
+2. The website uses the public branch automatically. If the observer stops or cannot upload for five minutes, the existing stale-status rule shows Working offline.
 
-No website code change is needed.
+The status branch is separate from `main`, the immutable scientific chain and the aggregate publication PRs. Heartbeats do not trigger website deployments. The end-of-run CEML command `python C:\CEML\tools\publication\publish.py` performs full verification and publishes the authoritative aggregate and website feed separately.
