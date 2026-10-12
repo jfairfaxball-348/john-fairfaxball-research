@@ -96,6 +96,13 @@ test("shows a fresh valid live status", () => {
   assert.equal(resolveLiveView(liveStatus, now).mode, "live");
 });
 
+test("accepts continuous session progress without an invented target", () => {
+  const view = resolveLiveView({ ...liveStatus, session: { requested: null, completed: 9999, mode: "continuous" } }, now);
+  assert.equal(view.mode, "live");
+  assert.equal(view.status?.session?.requested, null);
+  assert.equal(view.status?.session?.completed, 9999);
+});
+
 test("treats a stale live status as offline", () => {
   const old = new Date(now.getTime() - LIVE_STALE_AFTER_MS - 1000).toISOString();
   const view = resolveLiveView({ ...liveStatus, updated_at: old }, now);

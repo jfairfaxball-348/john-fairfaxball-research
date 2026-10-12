@@ -128,10 +128,10 @@ export function FrontierLiveView({
           {report?.session ? (
             <>
               <p className="live-value">
-                {group(report.session.completed)} / {group(report.session.requested)}
+                {group(report.session.completed)}{report.session.requested !== null && <> / {group(report.session.requested)}</>}
               </p>
-              <Meter value={report.session.completed} max={report.session.requested} label="Session progress" />
-              <p className="live-sub">integers requested in the current run</p>
+              {report.session.requested !== null && <Meter value={report.session.completed} max={report.session.requested} label="Session progress" />}
+              <p className="live-sub">{report.session.requested === null ? "integers checked in this continuous session" : "integers requested in the current run"}</p>
             </>
           ) : (
             <p className="live-value muted">—</p>

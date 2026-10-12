@@ -39,8 +39,9 @@ export const frontierLiveStatusSchema = z
       .optional(),
     session: z
       .object({
-        requested: z.number().int().positive(),
+        requested: z.number().int().positive().nullable(),
         completed: z.number().int().min(0),
+        mode: z.enum(["finite", "continuous"]).optional(),
         started_at: timestamp.nullable().optional(),
       })
       .strict()
