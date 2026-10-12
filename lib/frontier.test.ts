@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { resolveLiveView, getLiveView, LIVE_STALE_AFTER_MS, DEFAULT_FRONTIER_LIVE_STATUS_URL } from "./frontier-live.ts";
 import { decodeFrontierProgressResponse, groupDigits } from "./frontier-progress.ts";
+import { retainLatestReport } from "./frontier-live-display.ts";
 
 const base = "2392518188130438742016";
 
@@ -100,6 +101,37 @@ test("treats a stale live status as offline", () => {
   const view = resolveLiveView({ ...liveStatus, updated_at: old }, now);
   assert.equal(view.mode, "offline");
   assert.equal(view.mode === "offline" && view.reason, "stale");
+  assert.equal(view.status?.updated_at, old);
+});
+
+test("retains a fresh report through a transient failed poll", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const incoming = { mode: "offline" as const, checkedAt: now.toISOString(), reason: "unreachable" as const, lastSeen: null };
+  const result = retainLatestReport(previous, incoming);
+  assert.equal(result.mode, "live");
+  assert.deepEqual(result.status, previous.status);
+});
+
+test("does not extend freshness when polls keep failing", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const later = new Date(now.getTime() + LIVE_STALE_AFTER_MS).toISOString();
+  const result = retainLatestReport(previous, { mode: "offline", checkedAt: later, reason: "unreachable", lastSeen: null });
+  assert.equal(result.mode, "offline");
+  assert.equal(result.status?.updated_at, liveStatus.updated_at);
+});
+
+test("an older source response does not erase the latest batch or session", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const older = resolveLiveView({ ...liveStatus, updated_at: "2026-10-12T11:59:00Z", session: null }, now);
+  const result = retainLatestReport(previous, older);
+  assert.deepEqual(result.status?.session, liveStatus.session);
+  assert.equal(result.status?.updated_at, liveStatus.updated_at);
+});
+
+test("explicitly disabling the live source is respected", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const result = retainLatestReport(previous, { mode: "offline", checkedAt: now.toISOString(), reason: "not_configured", lastSeen: null });
+  assert.equal(result.mode, "offline");
 });
 
 test("treats a malformed live status as offline", () => {

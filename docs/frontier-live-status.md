@@ -25,12 +25,12 @@ The browser polls `/api/frontier/live` every 15 seconds while the tab is visible
 | variable explicitly empty | **Working offline** |
 | machine unreachable, HTTP error or 5 s timeout | Working offline |
 | response fails the schema below | Working offline |
-| `updated_at` older than 5 minutes | Working offline, with the last report time |
+| `updated_at` older than 5 minutes | Updates delayed, with last batch/session details and report time |
 | fresh valid status | Live panel: current batch, session progress, recent batches |
 
 The fetch happens on the server, so the machine's address is never sent to visitors. If the endpoint needs protecting, set `FRONTIER_LIVE_STATUS_TOKEN`; it is sent as `Authorization: Bearer <token>`.
 
-Live status is informational only. The tally counts only verified, published batches.
+The panel shows Latest batch checked and This session; there is no current-batch viewer or list of recent batches. It retains last reported details through fetch failures. A fresh prior report may bridge a transient failure, but its actual `updated_at` still expires after five minutes. Delayed updates do not establish whether the PC is online. Live status is informational only. The tally counts only verified, published batches.
 
 ### Status format, schema version 1
 
@@ -71,7 +71,7 @@ Live status is informational only. The tally counts only verified, published bat
 
 ### Operating it
 
-1. On the Windows machine, after signing into GitHub CLI, run `python C:\CEML\tools\publication\live.py start`. It starts a hidden, separate observer. Use `stop` to stop live uploads; the scientific runner is unaffected. Only allowlisted aggregate fields leave the machine. Local paths, addresses, command lines, identifiers and credentials are excluded. The observer's checkpoint cursor is provisional and recent `committed` entries are informational local observations, not independent verification.
-2. The website uses the public branch automatically. If the observer stops or cannot upload for five minutes, the existing stale-status rule shows Working offline.
+1. On the Windows machine, after signing into GitHub CLI, run `python C:\CEML\tools\publication\live.py start`. It registers a hidden Windows task running as the signed-in user with limited privileges, logon start and automatic one-minute recovery. Use `stop` to disable that task and stop live uploads; the scientific runner is unaffected. Only allowlisted aggregate fields leave the machine. Local paths, addresses, command lines, identifiers and credentials are excluded. The observer's checkpoint cursor is provisional and `committed` entries are informational local observations, not independent verification.
+2. The website uses the public branch automatically. If the observer stops or cannot upload for five minutes, the last details remain visible with an Updates delayed label.
 
 The status branch is separate from `main`, the immutable scientific chain and the aggregate publication PRs. Heartbeats do not trigger website deployments. The end-of-run CEML command `python C:\CEML\tools\publication\publish.py` performs full verification and publishes the authoritative aggregate and website feed separately.

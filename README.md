@@ -104,7 +104,7 @@ This is intentionally optimized for a small catalogue of tiny JSON documents whe
 
 No private GitHub token is required for the current public-repository architecture.
 
-The `/collatz` page follows the same pattern: it reads `frontier_progress_for_website.json` from the CEML repository on each request. Its separate informational live view reads the public CEML `live-status` branch by default. `FRONTIER_LIVE_STATUS_URL` overrides that source (an explicitly empty value disables it), with optional `FRONTIER_LIVE_STATUS_TOKEN` for a custom protected endpoint. A missing or stale live report shows "Working offline". See `docs/frontier-live-status.md`.
+The `/collatz` page follows the same pattern: it reads `frontier_progress_for_website.json` from the CEML repository on each request. Its separate informational live view reads the public CEML `live-status` branch by default and displays Latest batch checked and This session. `FRONTIER_LIVE_STATUS_URL` overrides that source (an explicitly empty value disables it), with optional `FRONTIER_LIVE_STATUS_TOKEN` for a custom protected endpoint. Delayed reports retain the last details and show Updates delayed; a missing source shows Live updates unavailable. See `docs/frontier-live-status.md`.
 
 ## Vercel deployment
 
