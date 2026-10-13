@@ -3,6 +3,8 @@ import test from "node:test";
 import { resolveLiveView, getLiveView, LIVE_STALE_AFTER_MS, DEFAULT_FRONTIER_LIVE_STATUS_URL } from "./frontier-live.ts";
 import { decodeFrontierProgressResponse, groupDigits } from "./frontier-progress.ts";
 import { retainLatestReport } from "./frontier-live-display.ts";
+import { createLivePoller } from "./frontier-live-poll.ts";
+import { decodeLiveView } from "./frontier-live.ts";
 
 const base = "2392518188130438742016";
 
@@ -155,9 +157,11 @@ test("reads the public CEML live branch by default without a token", async () =>
   const original = globalThis.fetch;
   let requested = "";
   let authorization: string | null = null;
+  let caching: RequestCache | undefined;
   globalThis.fetch = async (input, init) => {
     requested = String(input);
     authorization = new Headers(init?.headers).get("Authorization");
+    caching = init?.cache;
     return new Response(JSON.stringify(liveStatus), { status: 200 });
   };
   try {
@@ -165,7 +169,76 @@ test("reads the public CEML live branch by default without a token", async () =>
     assert.equal(view.mode, "live");
     assert.equal(requested, `${DEFAULT_FRONTIER_LIVE_STATUS_URL}?fresh=${now.getTime()}`);
     assert.equal(authorization, null);
+    assert.equal(caching, "no-store");
   } finally {
     globalThis.fetch = original;
   }
+});
+
+test("rejects a future heartbeat rather than letting it remain fresh indefinitely", () => {
+  const view = resolveLiveView({ ...liveStatus, updated_at: new Date(now.getTime() + 60_000).toISOString() }, now);
+  assert.equal(view.mode === "offline" && view.reason, "invalid");
+});
+
+test("late cached live responses cannot reset stale status or last checked time", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const later = new Date(now.getTime() + LIVE_STALE_AFTER_MS + 1_000).toISOString();
+  const stale = retainLatestReport(previous, { mode: "offline", checkedAt: later, reason: "unreachable", lastSeen: null });
+  const result = retainLatestReport(stale, previous);
+  assert.equal(result.mode, "offline");
+  assert.equal(result.checkedAt, later);
+  assert.equal(result.status?.updated_at, liveStatus.updated_at);
+});
+
+test("client receipt time expires an otherwise live cached response", () => {
+  const previous = resolveLiveView(liveStatus, now);
+  const later = new Date(now.getTime() + LIVE_STALE_AFTER_MS + 1_000).toISOString();
+  assert.equal(retainLatestReport(previous, previous, later).mode, "offline");
+});
+
+test("malformed API envelopes are rejected before reaching the UI", () => {
+  assert.throws(() => decodeLiveView({ mode: "live", checkedAt: "bad", status: liveStatus }));
+  assert.throws(() => decodeLiveView({ hello: "world" }));
+  assert.equal(decodeLiveView(resolveLiveView(liveStatus, now)).mode, "live");
+});
+
+test("only one browser poll runs at a time, and disposal prevents late updates", async () => {
+  const updates: unknown[] = [];
+  let calls = 0;
+  let signal: AbortSignal | null = null;
+  let finish!: (view: ReturnType<typeof resolveLiveView>) => void;
+  const poller = createLivePoller({ visible: () => true, publish: (value) => updates.push(value), fetchView: async (value) => {
+    calls++; signal = value;
+    return await new Promise((resolve) => { finish = resolve; });
+  } });
+  const first = poller.poll();
+  await poller.poll();
+  assert.equal(calls, 1);
+  const before = updates.length;
+  poller.dispose();
+  assert.equal((signal as AbortSignal | null)?.aborted, true);
+  finish(resolveLiveView(liveStatus, now));
+  await first;
+  assert.equal(updates.length, before);
+});
+
+test("a hidden browser tab still expires freshness but makes no fetch", async () => {
+  let checks = 0;
+  const poller = createLivePoller({ visible: () => false, publish: () => checks++, fetchView: async () => { throw new Error("should not fetch"); } });
+  await poller.poll();
+  assert.equal(checks, 1);
+  poller.dispose();
+});
+
+test("hung requests abort and a later poll can recover", async () => {
+  let calls = 0;
+  const poller = createLivePoller({ timeoutMs: 5, visible: () => true, publish: () => {}, fetchView: async (signal) => {
+    calls++;
+    if (calls > 1) return resolveLiveView(liveStatus, now);
+    return await new Promise((_, reject) => signal.addEventListener("abort", () => reject(new Error("timeout")), { once: true }));
+  } });
+  await poller.poll();
+  await poller.poll();
+  assert.equal(calls, 2);
+  poller.dispose();
 });

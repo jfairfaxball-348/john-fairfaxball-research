@@ -19,12 +19,27 @@ The CEML repository owns that file and regenerates it with `tools/publication/we
 
 The browser polls `/api/frontier/live` every 15 seconds while the tab is visible. By default the server reads `https://raw.githubusercontent.com/jfairfaxball-348/CEML/live-status/frontier_live_status.json`. A separate owner-authorised CEML sidecar reads local state and updates that public branch about once a minute. It never affects scientific execution or the verified tally. `FRONTIER_LIVE_STATUS_URL` overrides the default; an explicitly empty value disables it. No hosting secret, tunnel or inbound PC port is needed for the default source.
 
+Polling also refreshes immediately on mount, tab visibility/focus and network
+recovery. One request may be active at a time, with a ten-second browser timeout
+and cancellation on component disposal. Freshness is checked even when hidden
+or awaiting a response, using the heartbeat's original timestamp. Older/cached
+responses cannot roll Last checked backwards or revive an expired report.
+Payload envelopes are validated before updating React state; heartbeats more
+than 30 seconds in the future are refused.
+
+Both `/collatz` and the API use dynamic rendering with zero revalidation. Server
+fetches specify `cache: no-store`, and upstream and browser URLs carry freshness
+queries. API responses include browser and CDN `no-store` headers. No heartbeat
+requires a website rebuild. These controls follow
+[Next fetch semantics](https://nextjs.org/docs/app/api-reference/functions/fetch)
+and [Vercel cache header precedence](https://vercel.com/docs/caching/cache-control-headers).
+
 | Situation | Page shows |
 | --- | --- |
 | variable unset | use the public CEML live branch |
-| variable explicitly empty | **Working offline** |
-| machine unreachable, HTTP error or 5 s timeout | Working offline |
-| response fails the schema below | Working offline |
+| variable explicitly empty | live updates unavailable; retained details are informational |
+| feed unreachable, HTTP error or 5 s server timeout | retain a fresh previous report; otherwise updates delayed/unavailable |
+| response fails the schema below | retain a fresh previous report; otherwise updates delayed/unavailable |
 | `updated_at` older than 5 minutes | Updates delayed, with last batch/session details and report time |
 | fresh valid status | Latest batch checked and integers checked this session |
 
