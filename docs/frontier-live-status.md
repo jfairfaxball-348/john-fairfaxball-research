@@ -34,6 +34,15 @@ requires a website rebuild. These controls follow
 [Next fetch semantics](https://nextjs.org/docs/app/api-reference/functions/fetch)
 and [Vercel cache header precedence](https://vercel.com/docs/caching/cache-control-headers).
 
+Production validation found browser/API responses were cache misses, but a new
+GitHub raw-branch payload reached the production server several minutes after
+the uploader and another region could read it. Cache bypass at our application
+does not guarantee immediate upstream branch propagation. The 15-second polling
+interval is therefore a refresh interval, not a delivery-time guarantee. Retained
+reports keep their original heartbeat time and correctly become delayed; an age
+check alone does not invent a network failure or override an explicitly disabled
+source. The paused publisher remains paused during validation.
+
 | Situation | Page shows |
 | --- | --- |
 | variable unset | use the public CEML live branch |

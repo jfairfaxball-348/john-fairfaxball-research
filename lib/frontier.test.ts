@@ -224,9 +224,19 @@ test("only one browser poll runs at a time, and disposal prevents late updates",
 
 test("a hidden browser tab still expires freshness but makes no fetch", async () => {
   let checks = 0;
-  const poller = createLivePoller({ visible: () => false, publish: () => checks++, fetchView: async () => { throw new Error("should not fetch"); } });
+  const poller = createLivePoller({ visible: () => false, tick: () => checks++, publish: () => { throw new Error("no network failure was observed"); }, fetchView: async () => { throw new Error("should not fetch"); } });
   await poller.poll();
   assert.equal(checks, 1);
+  poller.dispose();
+});
+
+test("a freshness tick never invents a network error while awaiting a successful request", async () => {
+  const reports: string[] = [];
+  let ticks = 0;
+  const poller = createLivePoller({ visible: () => true, tick: () => ticks++, publish: (view) => reports.push(view.mode), fetchView: async () => resolveLiveView(liveStatus, now) });
+  await poller.poll();
+  assert.equal(ticks, 1);
+  assert.deepEqual(reports, ["live"]);
   poller.dispose();
 });
 

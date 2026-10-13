@@ -46,6 +46,10 @@ export function FrontierLiveView({
   useEffect(() => {
     const poller = createLivePoller({
       visible: () => !document.hidden,
+      tick: () => setView((previous) => {
+        if (!previous.status || previous.mode === "offline" && previous.reason === "not_configured") return previous;
+        return retainLatestReport(previous, { mode: "offline", checkedAt: new Date().toISOString(), reason: "stale", lastSeen: previous.status.updated_at });
+      }),
       publish: (incoming) => setView((previous) => retainLatestReport(previous, incoming, new Date().toISOString())),
       fetchView: async (signal) => {
         const response = await fetch(`/api/frontier/live?fresh=${Date.now()}`, { cache: "no-store", signal });
