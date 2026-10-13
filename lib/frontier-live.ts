@@ -73,6 +73,15 @@ export type LiveView =
   | { mode: "live"; checkedAt: string; status: FrontierLiveStatus }
   | { mode: "offline"; checkedAt: string; reason: OfflineReason; lastSeen: string | null; status?: FrontierLiveStatus };
 
+const liveViewSchema = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("live"), checkedAt: timestamp, status: frontierLiveStatusSchema }).strict(),
+  z.object({ mode: z.literal("offline"), checkedAt: timestamp, reason: z.enum(["not_configured", "unreachable", "invalid", "stale"]), lastSeen: timestamp.nullable(), status: frontierLiveStatusSchema.optional() }).strict(),
+]);
+
+export function decodeLiveView(payload: unknown): LiveView {
+  return liveViewSchema.parse(payload);
+}
+
 export function resolveLiveView(payload: unknown, now: Date): LiveView {
   const checkedAt = now.toISOString();
   const parsed = frontierLiveStatusSchema.safeParse(payload);
@@ -81,6 +90,9 @@ export function resolveLiveView(payload: unknown, now: Date): LiveView {
   }
 
   const age = now.getTime() - Date.parse(parsed.data.updated_at);
+  if (age < -30_000) {
+    return { mode: "offline", checkedAt, reason: "invalid", lastSeen: null };
+  }
   if (age > LIVE_STALE_AFTER_MS) {
     return { mode: "offline", checkedAt, reason: "stale", lastSeen: parsed.data.updated_at, status: parsed.data };
   }

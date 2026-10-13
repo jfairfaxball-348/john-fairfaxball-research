@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { LiveView, OfflineReason } from "@/lib/frontier-live";
+import { decodeLiveView } from "@/lib/frontier-live";
 import { retainLatestReport } from "@/lib/frontier-live-display";
+import { createLivePoller } from "@/lib/frontier-live-poll";
 
 const offlineNotes: Record<OfflineReason, string> = {
   not_configured: "The verification machine is not publishing live status at the moment.",
@@ -42,25 +44,27 @@ export function FrontierLiveView({
   const [view, setView] = useState(initialView);
 
   useEffect(() => {
-    let cancelled = false;
-    const poll = async () => {
-      if (document.hidden) return;
-      try {
-        const response = await fetch("/api/frontier/live", { cache: "no-store" });
-        if (response.ok && !cancelled) {
-          const incoming = (await response.json()) as LiveView;
-          setView((previous) => retainLatestReport(previous, incoming));
-        } else if (!cancelled) {
-          setView((previous) => retainLatestReport(previous, { mode: "offline", checkedAt: new Date().toISOString(), reason: "unreachable", lastSeen: null }));
-        }
-      } catch {
-        if (!cancelled) setView((previous) => retainLatestReport(previous, { mode: "offline", checkedAt: new Date().toISOString(), reason: "unreachable", lastSeen: null }));
-      }
-    };
-    const timer = window.setInterval(poll, pollIntervalMs);
+    const poller = createLivePoller({
+      visible: () => !document.hidden,
+      publish: (incoming) => setView((previous) => retainLatestReport(previous, incoming, new Date().toISOString())),
+      fetchView: async (signal) => {
+        const response = await fetch(`/api/frontier/live?fresh=${Date.now()}`, { cache: "no-store", signal });
+        if (!response.ok) throw new Error("Live feed unavailable");
+        return decodeLiveView(await response.json());
+      },
+    });
+    const refresh = () => { void poller.poll(); };
+    refresh();
+    const timer = window.setInterval(refresh, pollIntervalMs);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
     return () => {
-      cancelled = true;
+      poller.dispose();
       window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
     };
   }, [pollIntervalMs]);
 
