@@ -2,11 +2,12 @@ import type { LiveView } from "./frontier-live.ts";
 
 /** One bounded request at a time, with no state updates after disposal. */
 export function createLivePoller({
-  visible, publish, fetchView, timeoutMs = 10_000,
+  visible, publish, fetchView, tick = () => {}, timeoutMs = 10_000,
 }: {
   visible: () => boolean;
   publish: (view: LiveView) => void;
   fetchView: (signal: AbortSignal) => Promise<LiveView>;
+  tick?: () => void;
   timeoutMs?: number;
 }) {
   let disposed = false;
@@ -16,7 +17,7 @@ export function createLivePoller({
     async poll() {
       if (disposed) return;
       // Tick freshness even while hidden or waiting on a request.
-      publish(unavailable());
+      tick();
       if (!visible() || controller) return;
       controller = new AbortController();
       const request = controller;
