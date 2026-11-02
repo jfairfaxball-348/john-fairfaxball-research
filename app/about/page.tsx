@@ -4,28 +4,63 @@ import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "About John Fairfax-Ball's independent mathematical research programme.",
+  description:
+    "About John Fairfax-Ball: background, research interests and approach to independent mathematical research.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {
   return (
     <section className="shell page-block narrow">
       <header className="page-intro">
-        <p className="eyebrow">About</p>
-        <h1>Independent mathematical research</h1>
+        <p className="eyebrow">About me</p>
+        <h1>Curiosity, computation and proof.</h1>
+        <p>
+          I&apos;m John Fairfax-Ball, an independent researcher based in the UK,
+          working mainly in discrete mathematics, computational mathematics
+          and formal verification.
+        </p>
       </header>
-      <div className="prose">
+
+      <div className="prose about-copy">
+        <h2>Background</h2>
         <p>
-          John Fairfax-Ball is an independent researcher working on small, concrete problems in discrete mathematics, computational mathematics and formal verification.
+          My undergraduate degree is in Music Technology and Innovation. My
+          mathematical research is self-directed, developed outside a
+          conventional academic mathematics appointment.
+        </p>
+
+        <h2>Research interests</h2>
+        <p>
+          I&apos;m particularly interested in combinatorics, graph theory,
+          number theory and probabilistic questions about finite structures.
+          Recent projects have examined graph pebbling and stacking on trees,
+          restricted binomial-coefficient greatest common divisors, and
+          random greedy independent sets.
+        </p>
+
+        <h2>How I work</h2>
+        <p>
+          I like problems that can be approached from several directions:
+          exact computation to explore examples or search for counterexamples,
+          mathematical reasoning to explain the pattern, and formal proof in
+          Lean 4 when it adds confidence. Code, arguments, papers and
+          verification details are documented in the individual repositories.
+          AI tools also assist with research and development, with their
+          contributions described in the relevant projects.
         </p>
         <p>
-          The programme emphasises reproducible work: mathematical arguments are paired with code, finite certificates or Lean formalisation where those tools materially strengthen the result. Completed formal work may also be submitted for independent verification.
+          A computational experiment, a proved theorem, a machine-checked
+          formalisation and a published paper are not interchangeable.
+          The research catalogue distinguishes these stages, and links to
+          the underlying evidence. A preprint or a verification registry
+          record should not be mistaken for journal peer review.
         </p>
-        <p>
-          A fuller biography and additional scholarly profiles will be added when there is appropriate source material to publish.
-        </p>
-        <p>
-          <Link href={siteConfig.github}>GitHub profile ↗</Link>
+
+        <p className="about-actions">
+          <Link href="/research">Explore the research ↗</Link>
+          <Link href={siteConfig.github}>View the GitHub profile ↗</Link>
+          <Link href="/contact">Get in touch ↗</Link>
         </p>
       </div>
     </section>
