@@ -73,8 +73,15 @@ h2 { font-size: clamp(1.8rem, 4vw, 2.65rem); font-weight: 500; margin-bottom: .8
 .prose p { margin: 0 0 1.25rem; }
 .prose .katex-display { overflow-x: auto; overflow-y: hidden; padding-block: .5rem; }
 
-.contact-row { display: flex; justify-content: space-between; gap: 2rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 1rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+.about-copy h2 { font-size: clamp(1.5rem, 3vw, 1.95rem); margin: 2.2rem 0 .8rem; }
+.about-copy h2:first-child { margin-top: 0; }
+.about-actions { display: flex; flex-wrap: wrap; gap: .8rem 1.5rem; padding-top: .65rem; font: 650 .88rem/1.4 ui-sans-serif, system-ui, sans-serif; }
+
+.contact-rows { border-bottom: 1px solid var(--line); max-width: 760px; }
+.contact-row { display: flex; justify-content: space-between; gap: 2rem; border-top: 1px solid var(--line); padding-block: 1.1rem; font-family: ui-sans-serif, system-ui, sans-serif; overflow-wrap: anywhere; }
 .contact-row span { color: var(--muted); }
+.contact-row a { text-align: right; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 1.25rem; }
 
 .frontier-intro { margin-bottom: 4rem; }
 .frontier-section { margin-bottom: 5rem; }
@@ -149,6 +156,11 @@ h2 { font-size: clamp(1.8rem, 4vw, 2.65rem); font-weight: 500; margin-bottom: .8
   .rule-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem 1rem; }
   .rule-track { grid-column: 1 / -1; grid-row: 2; }
   .live-batches li { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 700px) {
+  .contact-row { flex-direction: column; gap: .2rem; }
+  .contact-row a { text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) {
