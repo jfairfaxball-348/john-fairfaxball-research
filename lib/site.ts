@@ -2,8 +2,9 @@ export const siteConfig = {
   name: "John Fairfax-Ball",
   title: "John Fairfax-Ball — Mathematical Research",
   description:
-    "Independent mathematical research in discrete mathematics, computational mathematics and formal verification.",
+    "Independent research in combinatorics, number theory, computation and formal verification.",
   github: "https://github.com/jfairfaxball-348",
+  email: "jfairfaxball@gmail.com",
 };
 
 type SiteUrlEnvironment = {
