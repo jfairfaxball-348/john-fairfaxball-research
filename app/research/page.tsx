@@ -7,7 +7,8 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Research",
-  description: "Research projects by John Fairfax-Ball, including formal verification and reproducible mathematical work.",
+  description:
+    "Research projects by John Fairfax-Ball, including mathematical results, computational work, Lean formalisation and linked papers.",
   alternates: { canonical: "/research" },
 };
 
@@ -20,7 +21,10 @@ export default async function ResearchPage() {
         <p className="eyebrow">Research catalogue</p>
         <h1>Research</h1>
         <p>
-          A single catalogue of active and completed projects. Status labels describe mathematical and verification maturity; linked repositories contain the technical record.
+          Current and completed mathematical projects, ordered by their
+          recorded public milestones. Each entry distinguishes the research
+          stage from its verification and publication record; the linked
+          repositories contain the technical details.
         </p>
       </header>
 
@@ -32,7 +36,7 @@ export default async function ResearchPage() {
         </div>
       ) : (
         <div className="prose">
-          <p>No project metadata is currently available from the approved research repositories.</p>
+          <p>The research catalogue is temporarily unavailable.</p>
         </div>
       )}
     </section>
