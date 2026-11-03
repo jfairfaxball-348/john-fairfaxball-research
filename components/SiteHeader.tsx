@@ -2,7 +2,6 @@ import Link from "next/link";
 
 const nav = [
   ["Home", "/"],
-  ["Research", "/research"],
   ["Collatz", "/collatz"],
   ["About", "/about"],
   ["Contact", "/contact"],
