@@ -151,7 +151,7 @@ Every fetched metadata document is parsed as JSON and validated with the Zod sch
 
 ## Fetching and freshness
 
-The Home and Research routes are request-time dynamic. The server fetches each registered root metadata file directly from `raw.githubusercontent.com` using `cache: "no-store"`, no Next.js revalidation cache, and a per-request query token that prevents the old fixed raw-GitHub URL from being reused by intermediary caches.
+The homepage research catalogue is request-time dynamic. The server fetches each registered root metadata file directly from `raw.githubusercontent.com` using `cache: "no-store"`, no Next.js revalidation cache, and a per-request query token that prevents the old fixed raw-GitHub URL from being reused by intermediary caches.
 
 For an already-registered repository, the intended update path is therefore:
 

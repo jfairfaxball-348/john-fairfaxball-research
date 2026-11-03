@@ -35,8 +35,8 @@ npm run build
 
 ## Site structure
 
-- `/` — home page and selected/featured research
-- `/research` — canonical catalogue of available research projects
+- `/` — homepage and full canonical research catalogue
+- `/research` — permanent redirect to `/` for existing bookmarks
 - `/collatz` — Collatz frontier verification tally (from `jfairfaxball-348/CEML`) and live machine view; see [`docs/frontier-live-status.md`](docs/frontier-live-status.md)
 - `/about` — short research biography/programme description
 - `/contact` — public contact/profile links
@@ -52,7 +52,7 @@ approved research repository
   -> meta_data_for_website.json
   -> request-time server-side Next.js aggregator
   -> Zod validation
-  -> Home / Research
+  -> Homepage catalogue
 ```
 
 The filename is exactly `meta_data_for_website.json` and the file belongs at the root of each participating research repository. The current contract is schema version 1.
@@ -70,6 +70,9 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/Pascal-Extremes`
 - `jfairfaxball-348/ProbStack-Random-Stacking-on-Trees`
 - `jfairfaxball-348/Greedy-Uniformity-on-Trees`
+- `jfairfaxball-348/Pan-Disciplinary-Invariance-Conjecture`
+- `jfairfaxball-348/ellipse-theorem`
+- `jfairfaxball-348/Inverse-Zero-Sum-Research`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
 
@@ -92,7 +95,7 @@ A missing metadata file does not bring down the site: that repository is skipped
 
 ## Server-side fetching and freshness
 
-Metadata is fetched server-side from the approved public GitHub repositories on each request to the Home or Research page. These routes are explicitly dynamic, the Next.js fetch uses `cache: "no-store"`, and the raw GitHub URL carries a per-request freshness token so stale application/CDN metadata is not deliberately retained.
+Metadata is fetched server-side from the approved public GitHub repositories on each request to the homepage. These routes are explicitly dynamic, the Next.js fetch uses `cache: "no-store"`, and the raw GitHub URL carries a per-request freshness token so stale application/CDN metadata is not deliberately retained.
 
 Therefore:
 

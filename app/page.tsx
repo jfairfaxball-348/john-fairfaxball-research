@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ProjectEntry } from "@/components/ProjectEntry";
 import { getResearchProjects } from "@/lib/projects";
 
@@ -23,21 +22,20 @@ export default async function Home() {
           underlying repository, with formal proofs, verification records
           and papers wherever available.
         </p>
-        <Link className="primary-link" href="/research">
-          Explore the research <span aria-hidden="true">→</span>
-        </Link>
+        <a className="primary-link" href="#research">
+          Browse the research <span aria-hidden="true">→</span>
+        </a>
       </section>
 
-      <section className="shell section-block" aria-labelledby="research-heading">
+      <section className="shell section-block" id="research" aria-labelledby="research-heading">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Research catalogue</p>
             <h2 id="research-heading">Research projects</h2>
           </div>
-          <Link href="/research">View research page →</Link>
         </div>
         {projects.length > 0 ? (
-          <div className="project-list compact-project-list">
+          <div className="project-list">
             {projects.map((project) => (
               <ProjectEntry key={project.slug} project={project} />
             ))}

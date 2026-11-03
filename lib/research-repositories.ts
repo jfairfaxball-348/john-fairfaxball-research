@@ -24,4 +24,16 @@ export const researchRepositorySources = [
     repository: "jfairfaxball-348/Greedy-Uniformity-on-Trees",
     ref: "main",
   },
+  {
+    repository: "jfairfaxball-348/Pan-Disciplinary-Invariance-Conjecture",
+    ref: "main",
+  },
+  {
+    repository: "jfairfaxball-348/ellipse-theorem",
+    ref: "main",
+  },
+  {
+    repository: "jfairfaxball-348/Inverse-Zero-Sum-Research",
+    ref: "main",
+  },
 ] as const satisfies readonly ResearchRepositorySource[];
