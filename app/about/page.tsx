@@ -25,9 +25,9 @@ export default function AboutPage() {
       <div className="prose about-copy">
         <h2>Background</h2>
         <p>
-          My undergraduate degree is in Music Technology and Innovation. My
-          mathematical research is self-directed, developed outside a
-          conventional academic mathematics appointment.
+          I have a BA (Hons) undergraduate degree. My mathematical research is
+          self-directed, developed outside a conventional academic
+          mathematics appointment.
         </p>
 
         <h2>Research interests</h2>
@@ -46,8 +46,6 @@ export default function AboutPage() {
           mathematical reasoning to explain the pattern, and formal proof in
           Lean 4 when it adds confidence. Code, arguments, papers and
           verification details are documented in the individual repositories.
-          AI tools also assist with research and development, with their
-          contributions described in the relevant projects.
         </p>
         <p>
           A computational experiment, a proved theorem, a machine-checked
@@ -58,7 +56,7 @@ export default function AboutPage() {
         </p>
 
         <p className="about-actions">
-          <Link href="/research">Explore the research ↗</Link>
+          <Link href="/#research">Explore the research ↗</Link>
           <Link href={siteConfig.github}>View the GitHub profile ↗</Link>
           <Link href="/contact">Get in touch ↗</Link>
         </p>
