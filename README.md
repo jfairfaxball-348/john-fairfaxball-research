@@ -73,6 +73,7 @@ Full field definitions, status values, a fictional example and failure behaviour
 - `jfairfaxball-348/Pan-Disciplinary-Invariance-Conjecture`
 - `jfairfaxball-348/ellipse-theorem`
 - `jfairfaxball-348/Inverse-Zero-Sum-Research`
+- `jfairfaxball-348/Homology-Homotopy-and-Applications`
 
 Only repository identifiers and refs belong in that registry. Do not copy project content into it. New GitHub repositories are never auto-discovered.
 
