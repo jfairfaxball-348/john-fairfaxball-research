@@ -36,4 +36,8 @@ export const researchRepositorySources = [
     repository: "jfairfaxball-348/Inverse-Zero-Sum-Research",
     ref: "main",
   },
+  {
+    repository: "jfairfaxball-348/Homology-Homotopy-and-Applications",
+    ref: "main",
+  },
 ] as const satisfies readonly ResearchRepositorySource[];
