@@ -37,6 +37,10 @@ export const researchRepositorySources = [
     ref: "main",
   },
   {
+    repository: "jfairfaxball-348/Inverse-Greedy",
+    ref: "main",
+  },
+  {
     repository: "jfairfaxball-348/Homology-Homotopy-and-Applications",
     ref: "main",
   },
